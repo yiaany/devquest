@@ -6,7 +6,7 @@ DevQuest generates a clean, terminal-style card from your real GitHub data. Drop
 
 ## What it looks like
 
-![DevQuest Card](https://goatserver.space/card/octocat.svg?ascii=2)
+![DevQuest Card](https://devquest-mu.vercel.app/card/octocat.svg?ascii=2)
 
 ## Features
 
@@ -21,7 +21,7 @@ DevQuest generates a clean, terminal-style card from your real GitHub data. Drop
 
 ## How to use
 
-1. Go to the [constructor](https://goatserver.space/build)
+1. Go to the [constructor](https://devquest-mu.vercel.app/build)
 2. Enter your GitHub username (or log in with GitHub)
 3. Customize the card
 4. Copy the markdown snippet
@@ -32,7 +32,7 @@ Done.
 ## Local development
 
 ```bash
-git clone https://github.com/<your-username>/devquest.git
+git clone https://github.com/yiaany/devquest.git
 cd devquest
 pnpm install
 cp .env.example .env.local
@@ -45,7 +45,7 @@ pnpm dev
 ```env
 GITHUB_CLIENT_ID=your_client_id
 GITHUB_CLIENT_SECRET=your_client_secret
-AUTH_SECRET=your_random_secret
+AUTH_SECRET=your_random_secret_string
 GITHUB_TOKEN=your_personal_access_token   # optional, raises rate limit
 NEXTAUTH_URL=http://localhost:3000
 ```

@@ -76,6 +76,7 @@ function BuildPageContent() {
   });
 
   const [copiedText, setCopiedText] = useState<string | null>(null);
+  const [showTutorial, setShowTutorial] = useState(false);
 
   // 2) Auto-fill username if session becomes active and username is empty
   useEffect(() => {
@@ -178,20 +179,29 @@ function BuildPageContent() {
           </span>
         </Link>
 
-        {session && session.user ? (
-          <div className="flex items-center gap-4 text-xs">
-            <span className="text-neutral-500">
-              @{ (session.user as unknown as { username?: string }).username ?? session.user.name }
-            </span>
-          </div>
-        ) : (
+        <div className="flex items-center gap-4">
           <button
-            onClick={() => signIn("github")}
-            className="rounded-md border border-neutral-800 bg-neutral-900/50 px-3 py-1.5 text-xs font-medium text-neutral-400 transition-all hover:bg-neutral-800 hover:text-neutral-200"
+            onClick={() => setShowTutorial(true)}
+            className="text-xs text-neutral-400 hover:text-neutral-200 transition-colors"
           >
-            connect github
+            how to use / tutorial
           </button>
-        )}
+
+          {session && session.user ? (
+            <div className="flex items-center gap-4 text-xs">
+              <span className="text-neutral-500">
+                @{ (session.user as unknown as { username?: string }).username ?? session.user.name }
+              </span>
+            </div>
+          ) : (
+            <button
+              onClick={() => signIn("github")}
+              className="rounded-md border border-neutral-800 bg-neutral-900/50 px-3 py-1.5 text-xs font-medium text-neutral-400 transition-all hover:bg-neutral-800 hover:text-neutral-200"
+            >
+              connect github
+            </button>
+          )}
+        </div>
       </header>
 
       {/* Workspace Grid */}
@@ -422,6 +432,68 @@ function BuildPageContent() {
           </div>
         </section>
       </main>
+
+      {/* Interactive Notion-style Modal Tutorial */}
+      {showTutorial && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-950/80 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-xl rounded-xl border border-neutral-900 bg-neutral-950 p-6 shadow-2xl font-mono text-neutral-300">
+            {/* Close button */}
+            <button
+              onClick={() => setShowTutorial(false)}
+              className="absolute right-4 top-4 text-neutral-500 hover:text-neutral-300"
+            >
+              ✕
+            </button>
+
+            <h3 className="text-base font-bold text-neutral-100 uppercase tracking-wide border-b border-neutral-900 pb-3 mb-4">
+              How to Setup DevQuest Card
+            </h3>
+
+            <div className="flex flex-col gap-4 text-xs leading-relaxed">
+              <div className="flex gap-3">
+                <span className="text-neutral-600 font-bold">01</span>
+                <div>
+                  <strong className="text-neutral-200 block mb-1">Create your Special Profile Repository</strong>
+                  <span>Create a public GitHub repository named EXACTLY matching your username (e.g. if your username is <code className="bg-neutral-900 px-1 py-0.5 rounded text-neutral-400">yiaany</code>, name the repo <code className="bg-neutral-900 px-1 py-0.5 rounded text-neutral-400">yiaany</code>). This special repo will host your profile README.</span>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <span className="text-neutral-600 font-bold">02</span>
+                <div>
+                  <strong className="text-neutral-200 block mb-1">Customize your Card</strong>
+                  <span>Use the left panel controls in this constructor to choose your theme, accent color, and select which ASCII art fits your style.</span>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <span className="text-neutral-600 font-bold">03</span>
+                <div>
+                  <strong className="text-neutral-200 block mb-1">Copy code in One-Click</strong>
+                  <span>Click the <strong className="text-neutral-100">{"\"Copy to GitHub Profile\""}</strong> button below the card preview. This copies the formatted markdown link directly to your clipboard.</span>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <span className="text-neutral-600 font-bold">04</span>
+                <div>
+                  <strong className="text-neutral-200 block mb-1">Paste into README.md</strong>
+                  <span>Open the <code className="bg-neutral-900 px-1 py-0.5 rounded text-neutral-400">README.md</code> file in your special profile repository on GitHub and paste the copied link. Save changes. Done!</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end border-t border-neutral-900 pt-4">
+              <button
+                onClick={() => setShowTutorial(false)}
+                className="rounded-md bg-neutral-100 px-4 py-2 text-xs font-bold text-neutral-950 hover:bg-neutral-200 transition-colors"
+              >
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

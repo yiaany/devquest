@@ -128,7 +128,7 @@ export default function Home() {
               {
                 step: "03",
                 title: "README Embed",
-                desc: "Copy the generated markdown link and paste it into your profile repository.",
+                desc: "Paste the generated markdown link into the README.md of your special repository named exactly matching your GitHub username.",
               },
             ].map((item) => (
               <div key={item.step} className="border border-neutral-900 bg-neutral-950 p-6 rounded-lg font-mono">

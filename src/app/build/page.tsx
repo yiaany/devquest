@@ -121,6 +121,7 @@ function BuildPageContent() {
   if (title) cardUrlParams.set("title", title);
   cardUrlParams.set("stats", stats.join(","));
 
+  // Всегда используем продакшен-домен для ссылок в markdown/html
   const baseUrl = "https://devquest-mu.vercel.app";
   const qs = cardUrlParams.toString();
   const cardUrl = `${baseUrl}/card/${targetUser}.svg${qs ? `?${qs}` : ""}`;

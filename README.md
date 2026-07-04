@@ -62,4 +62,4 @@ Make sure to add all environment variables in the Vercel dashboard.
 
 ## License
 
-MIT License
+CC BY-NC-SA 4.0 License (Attribution-NonCommercial-ShareAlike 4.0 International) — Free for personal use and modification. Commercial use, reselling, or hosting paid versions of this product is strictly prohibited.

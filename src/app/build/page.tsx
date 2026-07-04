@@ -121,7 +121,7 @@ function BuildPageContent() {
   if (title) cardUrlParams.set("title", title);
   cardUrlParams.set("stats", stats.join(","));
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+  const baseUrl = "https://devquest-mu.vercel.app";
   const qs = cardUrlParams.toString();
   const cardUrl = `${baseUrl}/card/${targetUser}.svg${qs ? `?${qs}` : ""}`;
   const pngUrl = `${baseUrl}/card/${targetUser}/png${qs ? `?${qs}` : ""}`;
@@ -410,6 +410,12 @@ function BuildPageContent() {
                 className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs font-medium text-neutral-200 transition-colors hover:bg-neutral-800 hover:text-neutral-100"
               >
                 Share on X
+              </button>
+              <button
+                onClick={() => copyToClipboard(markdownSnippet, "github")}
+                className="rounded-md bg-neutral-100 px-3 py-2 text-xs font-medium text-neutral-950 transition-all hover:bg-neutral-200"
+              >
+                {copiedText === "github" ? "Copied to clipboard!" : "Copy to GitHub Profile"}
               </button>
             </div>
           </div>

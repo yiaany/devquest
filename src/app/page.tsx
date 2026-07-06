@@ -67,11 +67,15 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative z-10 mx-auto max-w-5xl px-6 py-20 text-center sm:py-32">
         <div className="mx-auto max-w-2xl">
+          <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900/50 px-4 py-1.5 font-mono text-xs text-neutral-400">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#00ff9c]" />
+            33 templates · 10 art styles · 9 themes · live guestbook
+          </div>
           <h1 className="bg-gradient-to-b from-neutral-50 to-neutral-400 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent sm:text-6xl">
             Turn your GitHub stats into a profile card worth showing off.
           </h1>
           <p className="mx-auto mt-6 max-w-lg text-neutral-400 sm:text-lg">
-            An ultra-clean, minimalist terminal card generator for your profile README. No server setup, no static image lag.
+            33 live-rendered card templates for your profile README — from terminal stats and contribution heatmaps to an interactive guestbook visitors can actually sign. No server setup, no static image lag.
           </p>
 
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -97,11 +101,92 @@ export default function Home() {
           <div className="overflow-hidden rounded-lg bg-neutral-950">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/card/octocat.svg?ascii=1"
+              src="/card/octocat.svg?template=profile-hero&theme=tokyonight&style=glass"
               alt="DevQuest Card Preview"
               className="w-full object-cover"
               width={800}
               height={300}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Live gallery */}
+      <section className="relative z-10 border-t border-neutral-900 bg-neutral-950/40 py-20">
+        <div className="mx-auto max-w-7xl px-6">
+          <h2 className="text-center font-mono text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+            live gallery
+          </h2>
+          <h3 className="mx-auto mt-4 max-w-xl text-center text-2xl font-bold sm:text-3xl">
+            Every card renders live from real data.
+          </h3>
+          <p className="mx-auto mt-4 max-w-lg text-center text-sm text-neutral-400">
+            These aren&apos;t screenshots — each one is an SVG generated on demand. Mix any template with a theme, art-style frame, and accent color.
+          </p>
+          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { src: "/card/torvalds.svg?template=heatmap&theme=matrix&style=terminal", label: "Contribution Heatmap" },
+              { src: "/card/octocat.svg?template=receipt&theme=paper&style=minimal", label: "Dev Receipt" },
+              { src: "/card/gaearon.svg?template=rank-badge&theme=synthwave&style=outrun", label: "Rank Badge" },
+              { src: "/card/octocat.svg?template=language-donut&theme=dracula&style=neobrutalism", label: "Language Donut" },
+              { src: "/card/gaearon.svg?template=id-card&theme=nord&style=blueprint", label: "Dev ID Card" },
+              { src: "/card/octocat.svg?template=guestbook&theme=gruvbox&style=sticker", label: "Guestbook" },
+            ].map((card) => (
+              <div
+                key={card.label}
+                className="group overflow-hidden rounded-lg border border-neutral-900 bg-neutral-950 p-2 transition-colors hover:border-neutral-700"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={card.src}
+                  alt={`${card.label} card preview`}
+                  className="w-full rounded object-cover"
+                  width={400}
+                  height={200}
+                  loading="lazy"
+                />
+                <p className="mt-2 px-1 pb-1 font-mono text-xs text-neutral-500">
+                  {card.label}
+                </p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-8 text-center font-mono text-xs text-neutral-600">
+            + 27 more templates in the{" "}
+            <Link href="/build" className="text-neutral-400 underline underline-offset-4 hover:text-neutral-200">
+              constructor
+            </Link>
+          </p>
+        </div>
+      </section>
+
+      {/* Interactive guestbook highlight */}
+      <section className="relative z-10 border-t border-neutral-900 py-20">
+        <div className="mx-auto grid max-w-5xl items-center gap-10 px-6 sm:grid-cols-2">
+          <div>
+            <h2 className="font-mono text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+              interactive
+            </h2>
+            <h3 className="mt-4 text-2xl font-bold sm:text-3xl">
+              A README that people can actually sign.
+            </h3>
+            <p className="mt-4 text-sm leading-relaxed text-neutral-400 sm:text-base">
+              The Guestbook card turns a static README into a living wall. Visitors leave a signed message, and the card re-renders with their real signatures. Backed by a public sign API — sanitized, length-capped, and cached.
+            </p>
+            <div className="mt-6 rounded-lg border border-neutral-900 bg-neutral-950 p-4 font-mono text-xs text-neutral-500">
+              <span className="text-neutral-600">visit to sign →</span>{" "}
+              <span className="text-neutral-300">/your-username/sign</span>
+            </div>
+          </div>
+          <div className="overflow-hidden rounded-lg border border-neutral-900 bg-neutral-950 p-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/card/octocat.svg?template=guestbook&theme=gruvbox&style=sticker"
+              alt="Interactive guestbook card"
+              className="w-full rounded object-cover"
+              width={400}
+              height={200}
+              loading="lazy"
             />
           </div>
         </div>
@@ -122,8 +207,8 @@ export default function Home() {
               },
               {
                 step: "02",
-                title: "Customize & Preview",
-                desc: "Pick themes, colors, and configure which stats to show inside the terminal card.",
+                title: "Pick & Customize",
+                desc: "Choose from 33 templates, 10 art styles, and 9 themes. Set your accent, ASCII art, and which stats to show.",
               },
               {
                 step: "03",
@@ -151,14 +236,14 @@ export default function Home() {
             Designed for engineers who care about detail.
           </h3>
           <p className="mt-4 text-neutral-400 leading-relaxed max-w-xl mx-auto text-sm sm:text-base">
-            Whether you want a clean list of stats for job applications, or an aesthetic ASCII window to show your stack, DevQuest makes it minimal.
+            Whether you want a clean stat card for job applications, an aesthetic ASCII window to show your stack, or an interactive guestbook to make your profile stand out — DevQuest keeps it minimal and fully customizable.
           </p>
         </div>
       </section>
 
       {/* Simple Footer */}
       <footer className="relative z-10 border-t border-neutral-900 px-6 py-8 text-center font-mono text-xs text-neutral-600">
-        <p>© 2026 DevQuest. MIT License. Open-source on GitHub.</p>
+          <p>© 2026 DevQuest. CC BY-NC-SA 4.0. Open-source on GitHub.</p>
       </footer>
     </div>
   );

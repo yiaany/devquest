@@ -8,6 +8,8 @@ import { GridPattern } from "@/components/ui/grid-pattern";
 import { BorderBeam } from "@/components/ui/border-beam";
 import { STAT_KEYS, type StatKey } from "@/lib/card-params";
 import { THEME_NAMES } from "@/cards/themes";
+import { CARDS, CATEGORY_LABELS, CARD_CATEGORIES } from "@/cards/registry";
+import { ART_STYLES, type ArtStyle } from "@/cards/styles/frame";
 
 const STAT_LABELS: Record<StatKey, string> = {
   repos: "Public Repos",
@@ -16,6 +18,15 @@ const STAT_LABELS: Record<StatKey, string> = {
   contributions: "Contributions (Year)",
   streak: "Current Streak",
   prs: "Merged Pull Requests",
+};
+
+/** Human labels for each art-style frame (constructor dropdown). */
+const ART_STYLE_LABELS: Record<ArtStyle, string> = {
+  terminal: "Terminal Window",
+  neobrutalism: "Neobrutalism",
+  glass: "Glassmorphism",
+  pixel: "Pixel / Retro",
+  minimal: "Minimal",
 };
 
 const ASCII_NAMES = [
@@ -52,6 +63,16 @@ function BuildPageContent() {
   const [username, setUsername] = useState(() => {
     return searchParams.get("username") || "";
   });
+  const [template, setTemplate] = useState(() => {
+    const val = searchParams.get("template") || "terminal";
+    return CARDS.some((c) => c.id === val) ? val : "terminal";
+  });
+  const [style, setStyle] = useState<ArtStyle>(() => {
+    const val = searchParams.get("style") as ArtStyle | null;
+    return val && (ART_STYLES as readonly string[]).includes(val)
+      ? val
+      : "terminal";
+  });
   const [theme, setTheme] = useState(() => {
     return searchParams.get("theme") || "macos";
   });
@@ -78,6 +99,19 @@ function BuildPageContent() {
   const [copiedText, setCopiedText] = useState<string | null>(null);
   const [showTutorial, setShowTutorial] = useState(false);
 
+  // Derived: the currently selected card entry, and the art styles it supports.
+  const currentCard = CARDS.find((c) => c.id === template) ?? CARDS[0];
+  const availableStyles = currentCard.artStyles;
+
+  // Keep the selected art style valid for the current template. When switching
+  // to a template that doesn't support the active style, snap to that card's
+  // default so the preview never requests an unsupported combination.
+  useEffect(() => {
+    if (!availableStyles.includes(style)) {
+      setStyle(currentCard.defaultArtStyle);
+    }
+  }, [availableStyles, style, currentCard.defaultArtStyle]);
+
   // 2) Auto-fill username if session becomes active and username is empty
   useEffect(() => {
     if (status === "authenticated" && session?.user && !username) {
@@ -92,6 +126,8 @@ function BuildPageContent() {
   useEffect(() => {
     const params = new URLSearchParams();
     if (username) params.set("username", username);
+    if (template !== "terminal") params.set("template", template);
+    if (style !== "terminal") params.set("style", style);
     if (theme !== "macos") params.set("theme", theme);
     if (accent) params.set("accent", accent.replace("#", ""));
     if (ascii !== 1) params.set("ascii", String(ascii));
@@ -110,17 +146,19 @@ function BuildPageContent() {
     const qs = params.toString();
     const target = qs ? `/build?${qs}` : "/build";
     router.replace(target);
-  }, [username, theme, accent, ascii, animate, stats, title, router]);
+  }, [username, template, style, theme, accent, ascii, animate, stats, title, router]);
 
   // 4) Compute card asset and download links
   const targetUser = username.trim() || "octocat";
   const cardUrlParams = new URLSearchParams();
+  if (template !== "terminal") cardUrlParams.set("template", template);
+  if (style !== "terminal") cardUrlParams.set("style", style);
   if (theme !== "macos") cardUrlParams.set("theme", theme);
   if (accent) cardUrlParams.set("accent", accent.replace("#", ""));
-  if (ascii !== 1) cardUrlParams.set("ascii", String(ascii));
+  if (currentCard.controls.ascii && ascii !== 1) cardUrlParams.set("ascii", String(ascii));
   if (!animate) cardUrlParams.set("animate", "false");
   if (title) cardUrlParams.set("title", title);
-  cardUrlParams.set("stats", stats.join(","));
+  if (currentCard.controls.stats) cardUrlParams.set("stats", stats.join(","));
 
   // Всегда используем продакшен-домен для ссылок в markdown/html
   const baseUrl = "https://devquest-mu.vercel.app";
@@ -224,6 +262,49 @@ function BuildPageContent() {
             />
           </div>
 
+          {/* Template picker — grouped by category */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xs text-neutral-500 uppercase">Template</label>
+            <select
+              value={template}
+              onChange={(e) => setTemplate(e.target.value)}
+              className="rounded-md border border-neutral-800 bg-neutral-900/40 px-3 py-2 text-sm text-neutral-200 outline-none focus:border-neutral-700"
+            >
+              {CARD_CATEGORIES.map((cat) => {
+                const cards = CARDS.filter((c) => c.category === cat);
+                if (cards.length === 0) return null;
+                return (
+                  <optgroup key={cat} label={CATEGORY_LABELS[cat]} className="bg-neutral-950">
+                    {cards.map((c) => (
+                      <option key={c.id} value={c.id} className="bg-neutral-950">
+                        {c.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                );
+              })}
+            </select>
+            <p className="text-[11px] leading-snug text-neutral-600">
+              {currentCard.description}
+            </p>
+          </div>
+
+          {/* Art-style picker — constrained to what the template supports */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xs text-neutral-500 uppercase">Art Style</label>
+            <select
+              value={style}
+              onChange={(e) => setStyle(e.target.value as ArtStyle)}
+              className="rounded-md border border-neutral-800 bg-neutral-900/40 px-3 py-2 text-sm text-neutral-200 outline-none focus:border-neutral-700"
+            >
+              {availableStyles.map((s) => (
+                <option key={s} value={s} className="bg-neutral-950">
+                  {ART_STYLE_LABELS[s]}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Custom titlebar title */}
           <div className="flex flex-col gap-2">
             <label className="text-xs text-neutral-500 uppercase">Custom Title</label>
@@ -280,45 +361,49 @@ function BuildPageContent() {
             </div>
           </div>
 
-          {/* ASCII art index dropdown */}
-          <div className="flex flex-col gap-2">
-            <label className="text-xs text-neutral-500 uppercase">ASCII Art</label>
-            <select
-              value={ascii}
-              onChange={(e) => setAscii(parseInt(e.target.value, 10))}
-              className="rounded-md border border-neutral-800 bg-neutral-900/40 px-3 py-2 text-sm text-neutral-200 outline-none focus:border-neutral-700"
-            >
-              {ASCII_NAMES.map((name, idx) => (
-                <option key={name} value={idx + 1} className="bg-neutral-950">
-                  {name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Stats selection checklist */}
-          <div className="flex flex-col gap-2">
-            <label className="text-xs text-neutral-500 uppercase">Stats to show</label>
-            <div className="flex flex-col gap-2 rounded-md border border-neutral-900 bg-neutral-950 p-3">
-              {STAT_KEYS.map((key) => {
-                const checked = stats.includes(key);
-                return (
-                  <label
-                    key={key}
-                    className="flex cursor-pointer items-center justify-between text-xs text-neutral-300 hover:text-neutral-100"
-                  >
-                    <span>{STAT_LABELS[key]}</span>
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={() => handleStatToggle(key)}
-                      className="cursor-pointer rounded border-neutral-800 bg-neutral-900 text-neutral-100 focus:ring-0 focus:ring-offset-0"
-                    />
-                  </label>
-                );
-              })}
+          {/* ASCII art index dropdown — only for templates that use it */}
+          {currentCard.controls.ascii && (
+            <div className="flex flex-col gap-2">
+              <label className="text-xs text-neutral-500 uppercase">ASCII Art</label>
+              <select
+                value={ascii}
+                onChange={(e) => setAscii(parseInt(e.target.value, 10))}
+                className="rounded-md border border-neutral-800 bg-neutral-900/40 px-3 py-2 text-sm text-neutral-200 outline-none focus:border-neutral-700"
+              >
+                {ASCII_NAMES.map((name, idx) => (
+                  <option key={name} value={idx + 1} className="bg-neutral-950">
+                    {name}
+                  </option>
+                ))}
+              </select>
             </div>
-          </div>
+          )}
+
+          {/* Stats selection checklist — only for templates that use stats */}
+          {currentCard.controls.stats && (
+            <div className="flex flex-col gap-2">
+              <label className="text-xs text-neutral-500 uppercase">Stats to show</label>
+              <div className="flex flex-col gap-2 rounded-md border border-neutral-900 bg-neutral-950 p-3">
+                {STAT_KEYS.map((key) => {
+                  const checked = stats.includes(key);
+                  return (
+                    <label
+                      key={key}
+                      className="flex cursor-pointer items-center justify-between text-xs text-neutral-300 hover:text-neutral-100"
+                    >
+                      <span>{STAT_LABELS[key]}</span>
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => handleStatToggle(key)}
+                        className="cursor-pointer rounded border-neutral-800 bg-neutral-900 text-neutral-100 focus:ring-0 focus:ring-offset-0"
+                      />
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Animation switch */}
           <div className="flex items-center justify-between border-t border-neutral-900 pt-4">

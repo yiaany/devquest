@@ -20,6 +20,9 @@ import {
   formatCount,
 } from "@/cards/primitives";
 import { resolveTheme, type CardTheme } from "@/cards/themes";
+import { resolveArtStyle } from "@/cards/styles/frame";
+import { resolveCard } from "@/cards/registry";
+import type { CardContext } from "@/cards/context";
 
 
 import {
@@ -183,6 +186,25 @@ function postProcessSvg(
 }
 
 /**
+ * Render an arbitrary card element (JSX) to an SVG string, applying the shared
+ * Satori pipeline + post-processing (cursor recolor/blink, scanlines).
+ */
+async function renderElementToSvg(
+  element: React.ReactNode,
+  opts: { accent: string; animate: boolean; theme: CardTheme },
+): Promise<string> {
+  const fonts = await loadFonts();
+
+  const svg = await satori(element as React.ReactElement, {
+    width: CARD_WIDTH,
+    height: CARD_HEIGHT,
+    fonts,
+  });
+
+  return postProcessSvg(svg, opts);
+}
+
+/**
  * Render a terminal card template to an SVG string.
  *
  * @param props - Card data (username, theme, accent, stats, animate, or an
@@ -190,29 +212,49 @@ function postProcessSvg(
  * @returns SVG markup as a UTF-8 string.
  */
 export async function renderCardToSvg(props: RenderCardProps): Promise<string> {
-  const fonts = await loadFonts();
-
-  const svg = await satori(TerminalCard(props), {
-    width: CARD_WIDTH,
-    height: CARD_HEIGHT,
-    fonts,
-  });
-
   const theme = props.theme ?? resolveTheme(undefined);
   const accent = props.accent ?? theme.accent;
   const animate = props.animate ?? true;
 
-  return postProcessSvg(svg, { accent, animate, theme });
+  return renderElementToSvg(TerminalCard(props), { accent, animate, theme });
 }
 
 /**
- * Top-level entry: render the terminal profile card from normalized GitHub stats.
+ * Top-level entry: render any registered card from normalized GitHub stats.
+ *
+ * Resolves the requested template + art style from {@link CardParams}, builds
+ * the {@link CardContext} every template consumes, and dispatches to the
+ * registry's `render(ctx)`. Falls back to the default card for an unknown id
+ * (resolveCard never throws), preserving backward compatibility with the
+ * original single-card endpoint.
  */
 export async function renderCard(
   stats: GitHubStats,
   params: CardParams,
 ): Promise<string> {
-  return renderCardToSvg(statsToCardProps(stats, params));
+  const entry = resolveCard(params.template);
+  const theme = resolveTheme(params.theme);
+  const accent = params.accent ?? theme.accent;
+  const animate = params.animate ?? true;
+
+  // Resolve the art style, honoring the card's supported set: if the requested
+  // style isn't supported by this card, use the card's default.
+  const requested = resolveArtStyle(params.artStyle);
+  const artStyle = entry.artStyles.includes(requested)
+    ? requested
+    : entry.defaultArtStyle;
+
+  const ctx: CardContext = {
+    stats,
+    theme,
+    accent,
+    artStyle,
+    animate,
+    title: params.title ?? "devquest",
+    params,
+  };
+
+  return renderElementToSvg(entry.render(ctx), { accent, animate, theme });
 }
 
 /**

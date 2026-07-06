@@ -19,6 +19,12 @@
 import { z } from "zod";
 
 import { DEFAULT_THEME, THEME_NAMES, type ThemeName } from "@/cards/themes";
+import {
+  ART_STYLES,
+  DEFAULT_ART_STYLE,
+  type ArtStyle,
+} from "@/cards/styles/frame";
+import { CARD_IDS, DEFAULT_CARD_ID } from "@/cards/registry";
 
 /** Canonical stat keys the card knows how to render. */
 export const STAT_KEYS = [
@@ -43,6 +49,10 @@ export const DEFAULT_STAT_KEYS: StatKey[] = [
 
 /** Parsed, validated card options. All fields resolved to safe values. */
 export interface CardParams {
+  /** Which registered card template to render. */
+  template: string;
+  /** Art-style frame (window chrome) to render the template inside. */
+  artStyle: ArtStyle;
   theme: ThemeName;
   /** Accent hex incl. leading `#`, or null to use the theme's own accent. */
   accent: string | null;
@@ -99,6 +109,18 @@ export function parseCardParams(search: URLSearchParams): CardParams {
   const theme = themeSchema.parse(search.get("theme") ?? DEFAULT_THEME);
   const accent = parseAccent(search.get("accent"));
 
+  // Resolve template id against the registry; fall back to the default card.
+  const rawTemplate = search.get("template")?.trim().toLowerCase() ?? "";
+  const template = (CARD_IDS as readonly string[]).includes(rawTemplate)
+    ? rawTemplate
+    : DEFAULT_CARD_ID;
+
+  // Resolve art style; fall back to the default frame.
+  const rawArtStyle = search.get("style")?.trim().toLowerCase() ?? "";
+  const artStyle = (ART_STYLES as readonly string[]).includes(rawArtStyle)
+    ? (rawArtStyle as ArtStyle)
+    : DEFAULT_ART_STYLE;
+
   // Keep only known stat keys, preserving requested order + de-duplicating.
   const requestedStats = parseList(search.get("stats")) as StatKey[];
   const seen = new Set<StatKey>();
@@ -119,6 +141,8 @@ export function parseCardParams(search: URLSearchParams): CardParams {
   const ascii = Number.isInteger(rawAscii) && rawAscii >= 1 && rawAscii <= 10 ? rawAscii : 1;
 
   return {
+    template,
+    artStyle,
     theme,
     accent,
     stats: stats.length > 0 ? stats : DEFAULT_STAT_KEYS,

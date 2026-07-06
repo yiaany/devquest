@@ -1,12 +1,10 @@
 /**
- * Guestbook card — a wall of visitor signatures.
+ * Guestbook card — a live wall of visitor signatures.
  *
- * Interactive card: in the full flow, visitors sign via a GitHub Issue and a
- * companion workflow writes the collected names somewhere the card can read.
- * The normalized stats don't carry that list, so until the data source is wired
- * this renders a representative wall seeded from the owner's handle plus a
- * "sign the guestbook" call-to-action. The layout is final; only the data
- * source changes.
+ * Interactive card. The render engine hydrates `ctx.guestbook` with real
+ * signatures for the profile owner (from the guestbook store); visitors sign
+ * via the `/api/guestbook/:owner` endpoint or the on-site sign form. When no
+ * one has signed yet, the card shows a call-to-action instead of an empty wall.
  */
 
 import type { CardContext } from "@/cards/context";
@@ -14,22 +12,12 @@ import { CardFrame, alpha } from "@/cards/styles/frame";
 import { SectionLabel } from "@/cards/styles/content";
 import { truncate } from "@/cards/primitives";
 
-/** Placeholder signatures until the workflow-backed list is wired in. */
-const SAMPLE_SIGNERS = [
-  "octocat",
-  "torvalds",
-  "gaearon",
-  "sindresorhus",
-  "yyx990803",
-  "tj",
-  "addyosmani",
-  "kentcdodds",
-  "wesbos",
-  "leerob",
-];
-
 export function renderGuestbook(ctx: CardContext): React.ReactNode {
-  const { stats, theme, accent, artStyle, animate } = ctx;
+  const { stats, theme, accent, artStyle, animate, guestbook, guestbookTotal } = ctx;
+
+  const entries = guestbook ?? [];
+  const hasEntries = entries.length > 0;
+  const total = guestbookTotal ?? entries.length;
 
   return (
     <CardFrame
@@ -43,42 +31,79 @@ export function renderGuestbook(ctx: CardContext): React.ReactNode {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <SectionLabel text="Signed the guestbook" theme={theme} />
           <span style={{ color: accent, fontSize: 12, fontWeight: 700 }}>
-            {`${SAMPLE_SIGNERS.length} visitors`}
+            {total === 1 ? "1 visitor" : `${total} visitors`}
           </span>
         </div>
 
         {/* Signature wall */}
-        <div style={{ display: "flex", flexWrap: "wrap", alignContent: "flex-start", flex: 1 }}>
-          {SAMPLE_SIGNERS.map((name) => (
-            <div
-              key={name}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                height: 30,
-                paddingLeft: 10,
-                paddingRight: 12,
-                marginRight: 8,
-                marginBottom: 8,
-                borderRadius: 6,
-                backgroundColor: alpha(accent, 0.1),
-                border: `1px solid ${alpha(accent, 0.25)}`,
-              }}
-            >
+        {hasEntries ? (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              flex: 1,
+              marginTop: 6,
+            }}
+          >
+            {entries.slice(0, 6).map((sig, i) => (
               <div
+                key={`${sig.name}-${sig.at}-${i}`}
                 style={{
                   display: "flex",
-                  width: 6,
-                  height: 6,
+                  alignItems: "center",
+                  paddingTop: 5,
+                  paddingBottom: 5,
+                  paddingLeft: 10,
+                  paddingRight: 10,
+                  marginBottom: 5,
                   borderRadius: 6,
-                  marginRight: 8,
-                  backgroundColor: accent,
+                  backgroundColor: alpha(accent, 0.08),
+                  border: `1px solid ${alpha(accent, 0.2)}`,
                 }}
-              />
-              <span style={{ color: theme.fg, fontSize: 12 }}>{truncate(name, 16)}</span>
-            </div>
-          ))}
-        </div>
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    width: 6,
+                    height: 6,
+                    borderRadius: 6,
+                    marginRight: 8,
+                    backgroundColor: accent,
+                  }}
+                />
+                <span
+                  style={{
+                    color: accent,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    marginRight: 8,
+                  }}
+                >
+                  {truncate(sig.name, 14)}
+                </span>
+                {sig.message ? (
+                  <span style={{ color: theme.fg, fontSize: 12, opacity: 0.85 }}>
+                    {truncate(sig.message, 34)}
+                  </span>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              flex: 1,
+            }}
+          >
+            <span style={{ color: theme.fg, fontSize: 13, opacity: 0.7 }}>
+              {"No signatures yet — be the first!"}
+            </span>
+          </div>
+        )}
 
         {/* CTA */}
         <div
@@ -86,13 +111,14 @@ export function renderGuestbook(ctx: CardContext): React.ReactNode {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            height: 34,
+            height: 32,
+            marginTop: 4,
             borderRadius: 8,
             border: `1px dashed ${alpha(accent, 0.5)}`,
           }}
         >
           <span style={{ color: accent, fontSize: 12, fontWeight: 700 }}>
-            {"+ open an issue to sign"}
+            {`sign at devquest → /${stats.username}/sign`}
           </span>
         </div>
       </div>

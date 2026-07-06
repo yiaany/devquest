@@ -30,6 +30,27 @@ import { renderRepoStats } from "@/cards/templates/repo-stats";
 import { renderTopRepos } from "@/cards/templates/top-repos";
 import { renderGuestbook } from "@/cards/templates/guestbook";
 import { renderPoll } from "@/cards/templates/poll";
+// Profile & stats
+import { renderProfileHero } from "@/cards/templates/profile-hero";
+import { renderStatGrid } from "@/cards/templates/stat-grid";
+import { renderStatSpark } from "@/cards/templates/stat-spark";
+import { renderAccountAge } from "@/cards/templates/account-age";
+import { renderFollowerRatio } from "@/cards/templates/follower-ratio";
+import { renderContributionGauge } from "@/cards/templates/contribution-gauge";
+import { renderStreakFlame } from "@/cards/templates/streak-flame";
+import { renderPrBadge } from "@/cards/templates/pr-badge";
+import { renderReceipt } from "@/cards/templates/receipt";
+import { renderShields } from "@/cards/templates/shields";
+// Stack & skills
+import { renderLanguageLadder } from "@/cards/templates/language-bars-h";
+import { renderPolyglot } from "@/cards/templates/polyglot";
+import { renderLanguageCrown } from "@/cards/templates/language-crown";
+// Vibe & content
+import { renderNowPlaying } from "@/cards/templates/now-playing";
+// Repository
+import { renderStarsPerRepo } from "@/cards/templates/stars-per-repo";
+import { renderRepoShowcase } from "@/cards/templates/repo-showcase";
+import { renderStarSpread } from "@/cards/templates/repo-scatter";
 
 /** Top-level categories used to group cards in the gallery. */
 export const CARD_CATEGORIES = [
@@ -154,6 +175,106 @@ export const CARDS: CardEntry[] = [
     controls: { title: true },
     render: renderRankBadge,
   },
+  {
+    id: "profile-hero",
+    name: "Profile Hero",
+    description: "A clean business-card: monogram, name, bio, and a stat strip.",
+    category: "profile",
+    artStyles: [...ART_STYLES],
+    defaultArtStyle: "glass",
+    controls: { title: true },
+    render: renderProfileHero,
+  },
+  {
+    id: "stat-grid",
+    name: "Stat Grid",
+    description: "Six key metrics as a bold 2×3 grid of hero numbers.",
+    category: "profile",
+    artStyles: [...ART_STYLES],
+    defaultArtStyle: "minimal",
+    controls: { title: true },
+    render: renderStatGrid,
+  },
+  {
+    id: "stat-spark",
+    name: "Momentum",
+    description: "Core stats as relative spark-bars — see where your weight sits.",
+    category: "profile",
+    artStyles: [...ART_STYLES],
+    defaultArtStyle: "terminal",
+    controls: { title: true },
+    render: renderStatSpark,
+  },
+  {
+    id: "receipt",
+    name: "Dev Receipt",
+    description: "Your stats printed like a store receipt, with a grand total.",
+    category: "profile",
+    artStyles: [...ART_STYLES],
+    defaultArtStyle: "minimal",
+    controls: { title: true },
+    render: renderReceipt,
+  },
+  {
+    id: "shields",
+    name: "Shields",
+    description: "README-style label/value shields for every core stat.",
+    category: "profile",
+    artStyles: [...ART_STYLES],
+    defaultArtStyle: "minimal",
+    controls: { title: true },
+    render: renderShields,
+  },
+  {
+    id: "account-age",
+    name: "Veteran",
+    description: "Account age as the hero, with join year and lifetime totals.",
+    category: "profile",
+    artStyles: [...ART_STYLES],
+    defaultArtStyle: "minimal",
+    controls: { title: true },
+    render: renderAccountAge,
+  },
+  {
+    id: "follower-ratio",
+    name: "Network",
+    description: "Followers vs following as a split bar and follower ratio.",
+    category: "profile",
+    artStyles: [...ART_STYLES],
+    defaultArtStyle: "minimal",
+    controls: { title: true },
+    render: renderFollowerRatio,
+  },
+  {
+    id: "contribution-gauge",
+    name: "Contribution Gauge",
+    description: "Last-year contributions as a radial gauge with streak stats.",
+    category: "profile",
+    artStyles: [...ART_STYLES],
+    defaultArtStyle: "glass",
+    controls: { title: true },
+    render: renderContributionGauge,
+  },
+  {
+    id: "streak-flame",
+    name: "Streak Flame",
+    description: "Current streak vs personal best, with a flame motif.",
+    category: "profile",
+    artStyles: [...ART_STYLES],
+    defaultArtStyle: "outrun",
+    controls: { title: true },
+    render: renderStreakFlame,
+  },
+  {
+    id: "pr-badge",
+    name: "Merged PRs",
+    description: "Lifetime merged pull requests as the hero contribution stat.",
+    category: "profile",
+    artStyles: [...ART_STYLES],
+    defaultArtStyle: "terminal",
+    controls: { title: true },
+    render: renderPrBadge,
+  },
 
   // ── Stack & Skills ───────────────────────────────────────────────
   {
@@ -185,6 +306,36 @@ export const CARDS: CardEntry[] = [
     defaultArtStyle: "minimal",
     controls: { title: true },
     render: renderSkillBars,
+  },
+  {
+    id: "language-ladder",
+    name: "Language Ladder",
+    description: "Top languages as full-width stacked rows with percentages.",
+    category: "stack",
+    artStyles: [...ART_STYLES],
+    defaultArtStyle: "terminal",
+    controls: { title: true },
+    render: renderLanguageLadder,
+  },
+  {
+    id: "language-crown",
+    name: "Main Language",
+    description: "Your #1 language as a bold hero, with runners-up beneath.",
+    category: "stack",
+    artStyles: [...ART_STYLES],
+    defaultArtStyle: "minimal",
+    controls: { title: true },
+    render: renderLanguageCrown,
+  },
+  {
+    id: "polyglot",
+    name: "Polyglot",
+    description: "How many languages you work across, with the leaders named.",
+    category: "stack",
+    artStyles: [...ART_STYLES],
+    defaultArtStyle: "glass",
+    controls: { title: true },
+    render: renderPolyglot,
   },
 
   // ── Vibe & Content ───────────────────────────────────────────────
@@ -220,6 +371,16 @@ export const CARDS: CardEntry[] = [
     controls: { title: true },
     render: renderQuote,
   },
+  {
+    id: "now-playing",
+    name: "Now Coding",
+    description: "A 'now playing' music widget for your dev status and streak.",
+    category: "vibe",
+    artStyles: [...ART_STYLES],
+    defaultArtStyle: "glass",
+    controls: { title: true },
+    render: renderNowPlaying,
+  },
 
   // ── Repository ───────────────────────────────────────────────────
   {
@@ -242,12 +403,42 @@ export const CARDS: CardEntry[] = [
     controls: { title: true },
     render: renderTopRepos,
   },
+  {
+    id: "repo-showcase",
+    name: "Repo Showcase",
+    description: "Your top repository spotlighted, with runners-up listed.",
+    category: "repo",
+    artStyles: [...ART_STYLES],
+    defaultArtStyle: "glass",
+    controls: { title: true },
+    render: renderRepoShowcase,
+  },
+  {
+    id: "stars-per-repo",
+    name: "Impact",
+    description: "Average stars per repository — your signal density.",
+    category: "repo",
+    artStyles: [...ART_STYLES],
+    defaultArtStyle: "minimal",
+    controls: { title: true },
+    render: renderStarsPerRepo,
+  },
+  {
+    id: "repo-scatter",
+    name: "Star Spread",
+    description: "Top repositories as proportional star bubbles.",
+    category: "repo",
+    artStyles: [...ART_STYLES],
+    defaultArtStyle: "minimal",
+    controls: { title: true },
+    render: renderStarSpread,
+  },
 
   // ── Interactive ──────────────────────────────────────────────────
   {
     id: "guestbook",
     name: "Guestbook",
-    description: "Visitors sign via a GitHub Issue; names render into a live wall.",
+    description: "Visitors sign your wall from the web; signatures render live into the card.",
     category: "interactive",
     artStyles: ["neobrutalism", "terminal", "glass", "minimal"],
     defaultArtStyle: "neobrutalism",

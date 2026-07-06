@@ -25,6 +25,7 @@ import {
   type ArtStyle,
 } from "@/cards/styles/frame";
 import { CARD_IDS, DEFAULT_CARD_ID } from "@/cards/registry";
+import { ASCII_COUNT } from "@/cards/ascii";
 
 /** Canonical stat keys the card knows how to render. */
 export const STAT_KEYS = [
@@ -136,9 +137,12 @@ export function parseCardParams(search: URLSearchParams): CardParams {
   // Sanitize: max 20 chars, fallback to devquest when empty.
   const title = rawTitle.slice(0, 20) || "devquest";
 
-  // Parse ascii index (1..10), fallback to 1 on invalid.
+  // Parse ascii index (1..ASCII_COUNT), fallback to 1 on invalid.
   const rawAscii = parseInt(search.get("ascii") ?? "1", 10);
-  const ascii = Number.isInteger(rawAscii) && rawAscii >= 1 && rawAscii <= 10 ? rawAscii : 1;
+  const ascii =
+    Number.isInteger(rawAscii) && rawAscii >= 1 && rawAscii <= ASCII_COUNT
+      ? rawAscii
+      : 1;
 
   return {
     template,

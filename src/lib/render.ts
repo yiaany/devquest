@@ -254,6 +254,25 @@ export async function renderCard(
     params,
   };
 
+  // Interactive Guestbook: hydrate the wall with live signatures for the owner.
+  // Kept out of the pure template — the engine performs the (async) read and
+  // hands the template a plain array. Failure degrades to the empty/CTA state.
+  if (entry.id === "guestbook") {
+    try {
+      const { getEntries, countEntries, GUESTBOOK_RENDER_LIMIT } = await import(
+        "@/lib/guestbook"
+      );
+      const [entries, total] = await Promise.all([
+        getEntries(stats.username, GUESTBOOK_RENDER_LIMIT),
+        countEntries(stats.username),
+      ]);
+      ctx.guestbook = entries;
+      ctx.guestbookTotal = total;
+    } catch (error) {
+      console.error("[render] guestbook hydrate failed:", error);
+    }
+  }
+
   return renderElementToSvg(entry.render(ctx), { accent, animate, theme });
 }
 

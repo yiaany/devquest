@@ -15,6 +15,13 @@ import type { CardTheme } from "@/cards/themes";
 import type { CardParams } from "@/lib/card-params";
 import type { GitHubStats } from "@/lib/types";
 
+/** A single guestbook signature surfaced to the interactive card. */
+export interface GuestbookSignature {
+  name: string;
+  message: string;
+  at: number;
+}
+
 export interface CardContext {
   /** Normalized GitHub stats for the requested handle. */
   stats: GitHubStats;
@@ -30,4 +37,12 @@ export interface CardContext {
   title: string;
   /** Full parsed params for template-specific options. */
   params: CardParams;
+  /**
+   * Live guestbook signatures for the profile owner, newest first. Populated by
+   * the render engine only for the interactive Guestbook card; `undefined`
+   * elsewhere, in which case the card shows its empty/CTA state.
+   */
+  guestbook?: GuestbookSignature[];
+  /** Total guestbook signature count (may exceed the truncated list length). */
+  guestbookTotal?: number;
 }

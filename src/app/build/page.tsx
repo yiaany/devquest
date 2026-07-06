@@ -27,6 +27,11 @@ const ART_STYLE_LABELS: Record<ArtStyle, string> = {
   glass: "Glassmorphism",
   pixel: "Pixel / Retro",
   minimal: "Minimal",
+  outrun: "Outrun / Synthwave",
+  blueprint: "Blueprint Grid",
+  sketch: "Hand-drawn Sketch",
+  sticker: "Die-cut Sticker",
+  tape: "Taped Scrapbook",
 };
 
 const ASCII_NAMES = [
@@ -40,6 +45,26 @@ const ASCII_NAMES = [
   "8. Cloud Outline",
   "9. GitHub Star",
   "10. Code Brackets Tag",
+  "11. Rocket Launch",
+  "12. Hacker Skull",
+  "13. Cat",
+  "14. Love to Code",
+  "15. Dragon",
+  "16. Ocean Wave",
+  "17. Mountain",
+  "18. Lambda (Functional)",
+  "19. Robot / AI",
+  "20. Trophy / Rank",
+  "21. Astronaut",
+  "22. Bug / Debugger",
+  "23. Ghost in the Shell",
+  "24. Diamond / Gem",
+  "25. Lightning / CI",
+  "26. Gamepad",
+  "27. Fox",
+  "28. Pizza Slice",
+  "29. Planet / Saturn",
+  "30. Wizard Hat",
 ];
 
 export default function BuildPage() {

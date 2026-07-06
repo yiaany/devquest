@@ -29,6 +29,11 @@ export const ART_STYLES = [
   "glass",
   "pixel",
   "minimal",
+  "outrun",
+  "blueprint",
+  "sketch",
+  "sticker",
+  "tape",
 ] as const;
 
 export type ArtStyle = (typeof ART_STYLES)[number];
@@ -281,6 +286,214 @@ function chromeFor(props: FrameProps): FrameChrome {
             >
               {title}
             </span>
+          </div>
+        ),
+      };
+    }
+
+    case "outrun": {
+      // Synthwave sunset: gradient backdrop + neon border + glow.
+      return {
+        radius: 14,
+        borderWidth: 2,
+        borderColor: accent,
+        bg,
+        boxShadow: `0 0 24px ${alpha(accent, 0.5)}, 0 0 48px ${alpha(shade(accent, 0.3), 0.3)}`,
+        pad: 32,
+        backdrop: (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              background: `linear-gradient(180deg, ${alpha(shade(accent, 0.2), 0.25)} 0%, ${alpha(bg, 0)} 40%, ${alpha(accent, 0.18)} 100%)`,
+            }}
+          />
+        ),
+        header: (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              height: 44,
+              borderBottom: `2px solid ${alpha(accent, 0.6)}`,
+            }}
+          >
+            <span
+              style={{
+                color: accent,
+                fontSize: 15,
+                fontWeight: 700,
+                letterSpacing: 4,
+                textTransform: "uppercase",
+              }}
+            >
+              {title}
+            </span>
+          </div>
+        ),
+      };
+    }
+
+    case "blueprint": {
+      // Technical drawing: faint grid on deep blue, thin precise border.
+      const ink = theme.light ? "#1d3f72" : "#9ecbff";
+      const grid = alpha(ink, 0.14);
+      return {
+        radius: 2,
+        borderWidth: 1,
+        borderColor: alpha(ink, 0.5),
+        bg,
+        boxShadow: `0 6px 24px ${alpha("#000000", 0.35)}`,
+        pad: 34,
+        backdrop: (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              backgroundColor: alpha(ink, 0.02),
+              backgroundImage: `linear-gradient(${grid} 1px, transparent 1px), linear-gradient(90deg, ${grid} 1px, transparent 1px)`,
+              backgroundSize: "22px 22px",
+            }}
+          />
+        ),
+        header: (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              height: 40,
+              paddingLeft: 18,
+              paddingRight: 18,
+              borderBottom: `1px solid ${alpha(ink, 0.4)}`,
+            }}
+          >
+            <span style={{ color: ink, fontSize: 12, letterSpacing: 2, textTransform: "uppercase" }}>
+              {`FIG. 01 — ${title}`}
+            </span>
+          </div>
+        ),
+      };
+    }
+
+    case "sketch": {
+      // Hand-drawn notebook: dashed "pencil" border, offset ink shadow.
+      const ink = theme.light ? "#2d2a24" : fg;
+      return {
+        radius: 8,
+        borderWidth: 2,
+        borderColor: ink,
+        bg,
+        boxShadow: `3px 3px 0 ${alpha(ink, 0.25)}`,
+        pad: 32,
+        header: (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              height: 42,
+              paddingLeft: 18,
+              paddingRight: 18,
+              borderBottom: `2px dashed ${alpha(ink, 0.5)}`,
+            }}
+          >
+            <span style={{ color: ink, fontSize: 14, fontWeight: 700 }}>{`~ ${title} ~`}</span>
+          </div>
+        ),
+      };
+    }
+
+    case "sticker": {
+      // Playful die-cut sticker: fat rounded border + soft drop shadow.
+      return {
+        radius: 24,
+        borderWidth: 5,
+        borderColor: theme.light ? "#ffffff" : accent,
+        bg,
+        boxShadow: `0 10px 24px ${alpha("#000000", 0.35)}, inset 0 0 0 3px ${alpha(accent, 0.6)}`,
+        pad: 30,
+        header: (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              height: 46,
+              paddingLeft: 20,
+              paddingRight: 20,
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                height: 28,
+                paddingLeft: 12,
+                paddingRight: 12,
+                borderRadius: 14,
+                backgroundColor: accent,
+              }}
+            >
+              <span style={{ color: theme.light ? "#ffffff" : "#0a0a0a", fontSize: 13, fontWeight: 700 }}>
+                {title}
+              </span>
+            </div>
+          </div>
+        ),
+      };
+    }
+
+    case "tape": {
+      // Scrapbook: card taped down with two translucent "tape" strips.
+      const tape = alpha(accent, 0.35);
+      return {
+        radius: 3,
+        borderWidth: 1,
+        borderColor: alpha(fg, 0.15),
+        bg,
+        boxShadow: `0 8px 20px ${alpha("#000000", 0.3)}`,
+        pad: 34,
+        backdrop: (
+          <div style={{ position: "absolute", inset: 0, display: "flex" }}>
+            <div
+              style={{
+                position: "absolute",
+                top: -8,
+                left: 40,
+                display: "flex",
+                width: 90,
+                height: 26,
+                backgroundColor: tape,
+                transform: "rotate(-6deg)",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: -8,
+                right: 40,
+                display: "flex",
+                width: 90,
+                height: 26,
+                backgroundColor: tape,
+                transform: "rotate(5deg)",
+              }}
+            />
+          </div>
+        ),
+        header: (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              height: 40,
+              paddingLeft: 18,
+              paddingRight: 18,
+              borderBottom: `1px solid ${alpha(fg, 0.12)}`,
+            }}
+          >
+            <span style={{ color: muted, fontSize: 13, letterSpacing: 1 }}>{title}</span>
           </div>
         ),
       };

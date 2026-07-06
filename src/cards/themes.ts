@@ -12,7 +12,17 @@
  */
 
 /** The set of built-in theme names. */
-export const THEME_NAMES = ["macos", "matrix", "cyberpunk", "paper"] as const;
+export const THEME_NAMES = [
+  "macos",
+  "matrix",
+  "cyberpunk",
+  "paper",
+  "dracula",
+  "nord",
+  "gruvbox",
+  "tokyonight",
+  "synthwave",
+] as const;
 
 export type ThemeName = (typeof THEME_NAMES)[number];
 
@@ -100,6 +110,71 @@ export const THEMES: Record<ThemeName, CardTheme> = {
     trafficLights: true,
     scanlineOpacity: 0,
     light: true,
+  },
+  // Dracula — the classic purple/pink dark palette.
+  dracula: {
+    bg: "#282a36",
+    titleBar: "#21222c",
+    border: "#44475a",
+    fg: "#f8f8f2",
+    muted: "#6272a4",
+    accent: "#bd93f9",
+    danger: "#ff5555",
+    trafficLights: true,
+    scanlineOpacity: 0.04,
+    light: false,
+  },
+  // Nord — arctic, muted blue-grey.
+  nord: {
+    bg: "#2e3440",
+    titleBar: "#3b4252",
+    border: "#434c5e",
+    fg: "#eceff4",
+    muted: "#7b88a1",
+    accent: "#88c0d0",
+    danger: "#bf616a",
+    trafficLights: true,
+    scanlineOpacity: 0.03,
+    light: false,
+  },
+  // Gruvbox — warm retro amber on dark brown.
+  gruvbox: {
+    bg: "#282828",
+    titleBar: "#1d2021",
+    border: "#504945",
+    fg: "#ebdbb2",
+    muted: "#a89984",
+    accent: "#fabd2f",
+    danger: "#fb4934",
+    trafficLights: true,
+    scanlineOpacity: 0.06,
+    light: false,
+  },
+  // Tokyo Night — deep navy with soft blue accent.
+  tokyonight: {
+    bg: "#1a1b26",
+    titleBar: "#16161e",
+    border: "#2f334d",
+    fg: "#c0caf5",
+    muted: "#565f89",
+    accent: "#7aa2f7",
+    danger: "#f7768e",
+    trafficLights: true,
+    scanlineOpacity: 0.05,
+    light: false,
+  },
+  // Synthwave — hot magenta/cyan on midnight indigo.
+  synthwave: {
+    bg: "#1a1033",
+    titleBar: "#241548",
+    border: "#ff6ac1",
+    fg: "#f4e9ff",
+    muted: "#a17fe0",
+    accent: "#ff2fd0",
+    danger: "#fe4450",
+    trafficLights: false,
+    scanlineOpacity: 0.1,
+    light: false,
   },
 };
 

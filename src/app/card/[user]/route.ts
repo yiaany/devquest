@@ -26,6 +26,7 @@ import {
   GitHubRateLimitError,
 } from "@/lib/github";
 import { renderCard, renderErrorCard } from "@/lib/render";
+import { resolveCard } from "@/cards/registry";
 
 /** Force Node.js runtime — Satori font loading uses `node:fs`. */
 export const runtime = "nodejs";
@@ -37,6 +38,14 @@ export const runtime = "nodejs";
  */
 const CACHE_CONTROL_OK =
   "public, max-age=300, s-maxage=21600, stale-while-revalidate=86400";
+/**
+ * Interactive cards (guestbook, poll) render live, user-generated data, so a
+ * 6h CDN cache would leave fresh signatures/votes invisible for hours. Keep
+ * them short-lived and always revalidating so a new signature shows up within
+ * ~a minute. (GitHub's camo proxy may still add its own caching layer.)
+ */
+const CACHE_CONTROL_INTERACTIVE =
+  "public, max-age=0, s-maxage=30, stale-while-revalidate=60";
 /** Error cards shouldn't be cached for long — the user may fix the handle. */
 const CACHE_CONTROL_ERR = "public, max-age=0, s-maxage=60";
 
@@ -74,7 +83,11 @@ export async function GET(
 
     // 3) Render from real data, in the requested mode.
     const svg = await renderCard(stats, cardParams);
-    return svgResponse(svg, CACHE_CONTROL_OK);
+    // Interactive cards (live user data) must not sit in a 6h CDN cache.
+    const cacheControl = resolveCard(cardParams.template).interactive
+      ? CACHE_CONTROL_INTERACTIVE
+      : CACHE_CONTROL_OK;
+    return svgResponse(svg, cacheControl);
   } catch (error) {
     // Friendly fallback card (still HTTP 200 so the <img> renders something).
     const message =

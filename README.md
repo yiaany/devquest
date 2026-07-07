@@ -2,7 +2,7 @@
 
 Turn your GitHub profile into something actually worth looking at.
 
-DevQuest generates clean, live-rendered cards from your real GitHub data. Pick from **33 card templates**, **10 art-style frames**, **9 color themes** and **30 ASCII arts**, drop the snippet in your profile README, and it updates automatically. No static images, no manual updates, no bullshit.
+DevQuest generates clean, live-rendered cards from your real GitHub data. Pick from **33 card templates**, **15 art-style frames**, **19 color themes** and **40 ASCII arts**, drop the snippet in your profile README, and it updates automatically. No static images, no manual updates, no bullshit.
 
 > Every image below is a live SVG rendered on demand from real GitHub data — not a screenshot. Refresh and the numbers are current.
 
@@ -39,9 +39,9 @@ DevQuest generates clean, live-rendered cards from your real GitHub data. Pick f
 
 - **33 card templates** — profile heroes, stat grids, receipts, shields, rank badges, contribution heatmaps & gauges, streak flames, language donuts/ladders/crowns, repo showcases & scatter plots, dev ID cards, and more
 - **Live interactivity** — a **Guestbook** card that renders real visitor signatures (with owner-only moderation), plus a **Poll** card, backed by a public sign API
-- **10 art-style frames** — terminal, neobrutalism, glass, pixel, minimal, outrun, blueprint, sketch, sticker, tape
-- **9 color themes** — macos, matrix, cyberpunk, paper, dracula, nord, gruvbox, tokyonight, synthwave
-- **30 ASCII arts** to pin on the side of your card
+- **15 art-style frames** — terminal, neobrutalism, glass, pixel, minimal, outrun, blueprint, sketch, sticker, tape, hologram, newspaper, arcade, polaroid, circuit
+- **19 color themes** — macos, matrix, cyberpunk, paper, dracula, nord, gruvbox, tokyonight, synthwave, catppuccin, monokai, solarized, everforest, rosepine, oceanic, amber, vaporwave, githublight, coffee
+- **40 ASCII arts** to pin on the side of your card
 - Real-time data from GitHub, cached and auto-refreshing
 - Custom accent colors, custom title bar, selectable stats
 - One-click README embed + PNG export

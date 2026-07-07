@@ -101,7 +101,7 @@ export default function Home() {
           <div className="overflow-hidden rounded-lg bg-neutral-950">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/card/octocat.svg?template=profile-hero&theme=tokyonight&style=glass"
+              src="/card/octocat.svg?template=neofetch&theme=dracula&style=terminal&ascii=25"
               alt="DevQuest Card Preview"
               className="w-full object-cover"
               width={800}

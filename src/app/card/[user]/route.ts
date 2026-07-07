@@ -39,25 +39,36 @@ export const runtime = "nodejs";
 const CACHE_CONTROL_OK =
   "public, max-age=300, s-maxage=21600, stale-while-revalidate=86400";
 /**
- * Interactive cards (guestbook, poll) render live, user-generated data, so a
- * 6h CDN cache would leave fresh signatures/votes invisible for hours. Keep
- * them short-lived and always revalidating so a new signature shows up within
- * ~a minute. (GitHub's camo proxy may still add its own caching layer.)
+ * Interactive cards (guestbook, poll) render live, user-generated data. A CDN
+ * cache — and worse, GitHub's camo image proxy — would leave fresh signatures
+ * invisible for a long time. GitHub's camo honors the origin `Cache-Control`,
+ * so we send a hard no-cache/no-store directive: camo re-fetches on every view
+ * and new signatures appear immediately. Low-traffic card, so the extra origin
+ * hits are a fine trade for instant freshness.
  */
 const CACHE_CONTROL_INTERACTIVE =
-  "public, max-age=0, s-maxage=30, stale-while-revalidate=60";
+  "no-cache, no-store, max-age=0, must-revalidate";
 /** Error cards shouldn't be cached for long — the user may fix the handle. */
 const CACHE_CONTROL_ERR = "public, max-age=0, s-maxage=60";
 
 /** SVG response helper. */
 function svgResponse(svg: string, cacheControl: string): Response {
-  return new Response(svg, {
-    status: 200,
-    headers: {
-      "Content-Type": "image/svg+xml; charset=utf-8",
-      "Cache-Control": cacheControl,
-    },
-  });
+  const headers: Record<string, string> = {
+    "Content-Type": "image/svg+xml; charset=utf-8",
+    "Cache-Control": cacheControl,
+  };
+
+  // For a no-store card (interactive), belt-and-suspenders: pin every cache
+  // layer (Vercel CDN + legacy proxies) to never serve a stale copy, so GitHub
+  // camo always re-fetches and live data shows up instantly.
+  if (cacheControl.includes("no-store")) {
+    headers["CDN-Cache-Control"] = "no-store";
+    headers["Vercel-CDN-Cache-Control"] = "no-store";
+    headers["Pragma"] = "no-cache";
+    headers["Expires"] = "0";
+  }
+
+  return new Response(svg, { status: 200, headers });
 }
 
 export async function GET(

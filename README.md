@@ -73,7 +73,7 @@ The Guestbook card turns your profile into a wall visitors can sign.
    ```markdown
    [![Guestbook](https://devquest-mu.vercel.app/card/<your-username>.svg?template=guestbook)](https://devquest-mu.vercel.app/<your-username>/sign)
    ```
-2. Anyone can visit `https://devquest-mu.vercel.app/<your-username>/sign` and leave a signed message.
+2.. Anyone can visit `https://devquest-mu.vercel.app/<your-username>/sign` and leave a signed message.
 3. The card re-renders with the latest signatures — real interactivity, right inside a static README.
 
 As the profile owner, sign in with GitHub on your own sign page to **moderate** — delete any individual signature, or clear the whole wall.

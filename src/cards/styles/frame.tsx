@@ -5,8 +5,9 @@
  *
  *   1. An **art style** (this file) — the window chrome: background, border,
  *      shadow, corner radius, and the title bar. Think of it as the "frame"
- *      around a picture. Five are supported: terminal, neobrutalism, glass,
- *      pixel, minimal.
+ *      around a picture. Fifteen are supported: terminal, neobrutalism, glass,
+ *      pixel, minimal, outrun, blueprint, sketch, sticker, tape, hologram,
+ *      newspaper, arcade, polaroid, circuit.
  *   2. A **card template** (see `@/cards/templates/*`) — the body content:
  *      stats, bars, ASCII, guestbook rows, etc.
  *
@@ -34,6 +35,11 @@ export const ART_STYLES = [
   "sketch",
   "sticker",
   "tape",
+  "hologram",
+  "newspaper",
+  "arcade",
+  "polaroid",
+  "circuit",
 ] as const;
 
 export type ArtStyle = (typeof ART_STYLES)[number];
@@ -494,6 +500,304 @@ function chromeFor(props: FrameProps): FrameChrome {
             }}
           >
             <span style={{ color: muted, fontSize: 13, letterSpacing: 1 }}>{title}</span>
+          </div>
+        ),
+      };
+    }
+
+    case "hologram": {
+      // Iridescent HUD: cyan/magenta split glow, corner ticks, scanline sheen.
+      const hud = accent;
+      return {
+        radius: 10,
+        borderWidth: 1,
+        borderColor: alpha(hud, 0.6),
+        bg,
+        boxShadow: `0 0 30px ${alpha(hud, 0.4)}, inset 0 0 40px ${alpha(hud, 0.08)}`,
+        pad: 32,
+        backdrop: (
+          <div style={{ position: "absolute", inset: 0, display: "flex" }}>
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                display: "flex",
+                background: `linear-gradient(120deg, ${alpha(hud, 0.16)} 0%, ${alpha(bg, 0)} 35%, ${alpha(shade(hud, 0.35), 0.14)} 100%)`,
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: 8,
+                left: 8,
+                width: 18,
+                height: 18,
+                display: "flex",
+                borderTop: `2px solid ${hud}`,
+                borderLeft: `2px solid ${hud}`,
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+                width: 18,
+                height: 18,
+                display: "flex",
+                borderTop: `2px solid ${hud}`,
+                borderRight: `2px solid ${hud}`,
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                bottom: 8,
+                left: 8,
+                width: 18,
+                height: 18,
+                display: "flex",
+                borderBottom: `2px solid ${hud}`,
+                borderLeft: `2px solid ${hud}`,
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                bottom: 8,
+                right: 8,
+                width: 18,
+                height: 18,
+                display: "flex",
+                borderBottom: `2px solid ${hud}`,
+                borderRight: `2px solid ${hud}`,
+              }}
+            />
+          </div>
+        ),
+        header: (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              height: 42,
+              paddingLeft: 20,
+              paddingRight: 20,
+              borderBottom: `1px solid ${alpha(hud, 0.35)}`,
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                width: 7,
+                height: 7,
+                borderRadius: 7,
+                marginRight: 10,
+                backgroundColor: hud,
+              }}
+            />
+            <span
+              style={{
+                color: hud,
+                fontSize: 12,
+                letterSpacing: 3,
+                textTransform: "uppercase",
+              }}
+            >
+              {title}
+            </span>
+            <div style={{ display: "flex", flex: 1 }} />
+            <span style={{ color: alpha(hud, 0.7), fontSize: 11, letterSpacing: 2 }}>{"◇ ◇ ◇"}</span>
+          </div>
+        ),
+      };
+    }
+
+    case "newspaper": {
+      // Vintage print: cream stock, heavy black masthead rules, serif-ish caps.
+      const ink = "#141210";
+      const stock = theme.light ? bg : "#f4efe2";
+      return {
+        radius: 0,
+        borderWidth: 2,
+        borderColor: ink,
+        bg: stock,
+        boxShadow: `0 6px 22px ${alpha("#000000", 0.3)}`,
+        pad: 34,
+        header: (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              paddingLeft: 18,
+              paddingRight: 18,
+              paddingTop: 10,
+              paddingBottom: 8,
+              backgroundColor: stock,
+              borderBottom: `3px solid ${ink}`,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span
+                style={{
+                  color: ink,
+                  fontSize: 20,
+                  fontWeight: 700,
+                  letterSpacing: 4,
+                  textTransform: "uppercase",
+                }}
+              >
+                {title}
+              </span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: 2 }}>
+              <span style={{ color: alpha(ink, 0.7), fontSize: 10, letterSpacing: 3, textTransform: "uppercase" }}>
+                {"— The Daily Commit · Vol. I —"}
+              </span>
+            </div>
+          </div>
+        ),
+      };
+    }
+
+    case "arcade": {
+      // 8-bit cabinet: chunky double border, hard offset shadow, insert-coin bar.
+      const neon = accent;
+      return {
+        radius: 0,
+        borderWidth: 4,
+        borderColor: neon,
+        bg,
+        boxShadow: `0 0 0 4px ${alpha("#000000", 0.6)}, 6px 6px 0 ${shade(neon, -0.4)}, 0 0 26px ${alpha(neon, 0.5)}`,
+        pad: 30,
+        header: (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              height: 44,
+              paddingLeft: 14,
+              paddingRight: 14,
+              backgroundColor: shade(neon, -0.35),
+              borderBottom: `4px solid ${neon}`,
+            }}
+          >
+            <span
+              style={{
+                color: neon,
+                fontSize: 13,
+                fontWeight: 700,
+                letterSpacing: 2,
+                textTransform: "uppercase",
+              }}
+            >
+              {title}
+            </span>
+            <div style={{ display: "flex", flex: 1 }} />
+            <span
+              style={{
+                color: theme.light ? "#ffffff" : "#ffe600",
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: 1,
+                textTransform: "uppercase",
+              }}
+            >
+              {"1 CR"}
+            </span>
+            {cursor}
+          </div>
+        ),
+      };
+    }
+
+    case "polaroid": {
+      // Instant photo: thick white mount with a fat bottom caption band.
+      const mount = "#f7f5f0";
+      return {
+        radius: 4,
+        borderWidth: 0,
+        borderColor: mount,
+        bg: mount,
+        boxShadow: `0 14px 30px ${alpha("#000000", 0.4)}`,
+        pad: 0,
+        backdrop: (
+          <div
+            style={{
+              position: "absolute",
+              left: 14,
+              right: 14,
+              bottom: 14,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              height: 40,
+            }}
+          >
+            <span
+              style={{
+                color: "#2a2723",
+                fontSize: 15,
+                fontWeight: 700,
+                letterSpacing: 1,
+              }}
+            >
+              {title}
+            </span>
+          </div>
+        ),
+        header: <div style={{ display: "flex", height: 16 }} />,
+      };
+    }
+
+    case "circuit": {
+      // PCB board: solder base, copper trace grid, pad dot + revision tag.
+      const copper = theme.light ? "#8a6a1f" : accent;
+      const trace = alpha(copper, 0.28);
+      return {
+        radius: 6,
+        borderWidth: 2,
+        borderColor: alpha(copper, 0.55),
+        bg,
+        boxShadow: `0 8px 26px ${alpha("#000000", 0.4)}, inset 0 0 0 1px ${alpha(copper, 0.15)}`,
+        pad: 32,
+        backdrop: (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              backgroundImage: `linear-gradient(${trace} 1px, transparent 1px), linear-gradient(90deg, ${trace} 1px, transparent 1px)`,
+              backgroundSize: "40px 40px",
+            }}
+          />
+        ),
+        header: (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              height: 42,
+              paddingLeft: 18,
+              paddingRight: 18,
+              borderBottom: `1px solid ${alpha(copper, 0.4)}`,
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                width: 10,
+                height: 10,
+                borderRadius: 10,
+                marginRight: 10,
+                backgroundColor: copper,
+              }}
+            />
+            <span style={{ color: copper, fontSize: 12, letterSpacing: 2, textTransform: "uppercase" }}>
+              {title}
+            </span>
+            <div style={{ display: "flex", flex: 1 }} />
+            <span style={{ color: alpha(copper, 0.7), fontSize: 11, letterSpacing: 1 }}>{"REV.A"}</span>
           </div>
         ),
       };

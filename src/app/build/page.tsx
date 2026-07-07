@@ -32,6 +32,11 @@ const ART_STYLE_LABELS: Record<ArtStyle, string> = {
   sketch: "Hand-drawn Sketch",
   sticker: "Die-cut Sticker",
   tape: "Taped Scrapbook",
+  hologram: "Hologram HUD",
+  newspaper: "Vintage Newspaper",
+  arcade: "Arcade Cabinet",
+  polaroid: "Polaroid Photo",
+  circuit: "Circuit Board",
 };
 
 const ASCII_NAMES = [
@@ -65,6 +70,16 @@ const ASCII_NAMES = [
   "28. Pizza Slice",
   "29. Planet / Saturn",
   "30. Wizard Hat",
+  "31. Sword / Blade",
+  "32. Pixel Heart",
+  "33. Snake",
+  "34. Anchor",
+  "35. Compass",
+  "36. Key / Auth",
+  "37. Light Bulb",
+  "38. Tree",
+  "39. Shield",
+  "40. Infinity / CI-CD",
 ];
 
 export default function BuildPage() {

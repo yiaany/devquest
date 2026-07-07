@@ -69,7 +69,7 @@ export default function Home() {
         <div className="mx-auto max-w-2xl">
           <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900/50 px-4 py-1.5 font-mono text-xs text-neutral-400">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#00ff9c]" />
-            33 templates · 10 art styles · 9 themes · live guestbook
+            33 templates · 15 art styles · 19 themes · live guestbook
           </div>
           <h1 className="bg-gradient-to-b from-neutral-50 to-neutral-400 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent sm:text-6xl">
             Turn your GitHub stats into a profile card worth showing off.

@@ -10,6 +10,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useSession, signIn } from "next-auth/react";
 import { GridPattern } from "@/components/ui/grid-pattern";
 
 interface Entry {
@@ -24,6 +25,11 @@ const MESSAGE_MAX = 100;
 export default function SignPage({ params }: { params: { user: string } }) {
   const owner = params.user;
 
+  const { data: session } = useSession();
+  const sessionUser = session?.user as unknown as { username?: string; name?: string } | undefined;
+  const myHandle = sessionUser?.username ?? sessionUser?.name ?? null;
+  const isOwner = !!myHandle && myHandle.toLowerCase() === owner.toLowerCase();
+
   const [entries, setEntries] = useState<Entry[]>([]);
   const [total, setTotal] = useState(0);
   const [name, setName] = useState("");
@@ -32,6 +38,8 @@ export default function SignPage({ params }: { params: { user: string } }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [warning, setWarning] = useState<string | null>(null);
+  const [removingAt, setRemovingAt] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -68,6 +76,13 @@ export default function SignPage({ params }: { params: { user: string } }) {
         const data = (await res.json().catch(() => ({}))) as { error?: string };
         throw new Error(data.error ?? "Could not sign.");
       }
+      const data = (await res.json().catch(() => ({}))) as { durable?: boolean };
+      // Honesty: if the backend isn't durable, the signature won't persist.
+      if (data.durable === false) {
+        setWarning(
+          "Heads up: this deployment has no persistent storage configured, so signatures may not stick. The owner needs to connect Upstash/Vercel KV.",
+        );
+      }
       setName("");
       setMessage("");
       setDone(true);
@@ -76,6 +91,28 @@ export default function SignPage({ params }: { params: { user: string } }) {
       setError(err instanceof Error ? err.message : "Could not sign.");
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  /** Owner-only: delete a single signature by timestamp. */
+  async function remove(at: number) {
+    if (!isOwner || removingAt !== null) return;
+    setRemovingAt(at);
+    setError(null);
+    try {
+      const res = await fetch(
+        `/api/guestbook/${encodeURIComponent(owner)}?at=${at}`,
+        { method: "DELETE" },
+      );
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(data.error ?? "Could not delete.");
+      }
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not delete.");
+    } finally {
+      setRemovingAt(null);
     }
   }
 
@@ -142,6 +179,7 @@ export default function SignPage({ params }: { params: { user: string } }) {
           </div>
 
           {error ? <p className="text-sm text-red-400">{error}</p> : null}
+          {warning ? <p className="text-sm text-amber-400">{warning}</p> : null}
           {done ? (
             <p className="text-sm text-emerald-400">Thanks for signing! 🎉</p>
           ) : null}
@@ -159,6 +197,21 @@ export default function SignPage({ params }: { params: { user: string } }) {
         <h2 className="mb-4 mt-12 text-lg font-semibold text-neutral-200">
           Recent signatures
         </h2>
+
+        {/* Owner moderation banner */}
+        {isOwner ? (
+          <p className="mb-4 rounded-lg border border-emerald-800/50 bg-emerald-950/30 px-4 py-2.5 text-sm text-emerald-300">
+            You&rsquo;re signed in as the owner — you can delete any signature below.
+          </p>
+        ) : (
+          <button
+            onClick={() => signIn("github")}
+            className="mb-4 self-start text-xs text-neutral-500 underline-offset-2 transition-colors hover:text-neutral-300 hover:underline"
+          >
+            Are you {owner}? Sign in to moderate.
+          </button>
+        )}
+
         {loading ? (
           <p className="text-neutral-500">Loading…</p>
         ) : entries.length === 0 ? (
@@ -168,13 +221,25 @@ export default function SignPage({ params }: { params: { user: string } }) {
             {entries.map((sig, i) => (
               <li
                 key={`${sig.name}-${sig.at}-${i}`}
-                className="rounded-lg border border-neutral-800 bg-neutral-900/40 px-4 py-3"
+                className="group rounded-lg border border-neutral-800 bg-neutral-900/40 px-4 py-3"
               >
                 <div className="flex items-baseline justify-between gap-3">
                   <span className="font-semibold text-emerald-400">{sig.name}</span>
-                  <time className="shrink-0 text-xs text-neutral-600">
-                    {new Date(sig.at).toLocaleDateString()}
-                  </time>
+                  <div className="flex shrink-0 items-center gap-3">
+                    <time className="text-xs text-neutral-600">
+                      {new Date(sig.at).toLocaleDateString()}
+                    </time>
+                    {isOwner ? (
+                      <button
+                        onClick={() => remove(sig.at)}
+                        disabled={removingAt === sig.at}
+                        aria-label="Delete this signature"
+                        className="text-xs text-neutral-600 transition-colors hover:text-red-400 disabled:opacity-50"
+                      >
+                        {removingAt === sig.at ? "removing…" : "delete"}
+                      </button>
+                    ) : null}
+                  </div>
                 </div>
                 {sig.message ? (
                   <p className="mt-1 text-neutral-300">{sig.message}</p>

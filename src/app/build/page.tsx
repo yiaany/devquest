@@ -194,6 +194,18 @@ function BuildPageContent() {
   const markdownSnippet = `![@${targetUser}'s GitHub Stats](${cardUrl})`;
   const htmlSnippet = `<img src="${cardUrl}" alt="@${targetUser}'s GitHub Stats" />`;
 
+  // Interactive cards (e.g. guestbook) become clickable by wrapping the image
+  // in a link. GitHub strips links *inside* an SVG, but a markdown image
+  // wrapped in a link works everywhere — clicking the card opens the sign page.
+  const isInteractive = currentCard.category === "interactive";
+  const signUrl = `${baseUrl}/${targetUser}/sign`;
+  const markdownLinked = isInteractive
+    ? `[![@${targetUser}'s GitHub Guestbook](${cardUrl})](${signUrl})`
+    : markdownSnippet;
+  const htmlLinked = isInteractive
+    ? `<a href="${signUrl}"><img src="${cardUrl}" alt="@${targetUser}'s GitHub Guestbook" /></a>`
+    : htmlSnippet;
+
   const copyToClipboard = async (text: string, type: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -482,7 +494,7 @@ function BuildPageContent() {
               <div className="flex items-center justify-between">
                 <span className="text-xs text-neutral-500 uppercase">Markdown</span>
                 <button
-                  onClick={() => copyToClipboard(markdownSnippet, "md")}
+                  onClick={() => copyToClipboard(markdownLinked, "md")}
                   className="text-xs text-neutral-300 hover:text-neutral-100"
                 >
                   {copiedText === "md" ? "copied!" : "copy"}
@@ -491,10 +503,15 @@ function BuildPageContent() {
               <input
                 type="text"
                 readOnly
-                value={markdownSnippet}
+                value={markdownLinked}
                 onClick={(e) => (e.target as HTMLInputElement).select()}
                 className="rounded-md border border-neutral-800 bg-neutral-900/30 px-3 py-1.5 font-mono text-xs text-neutral-400 outline-none"
               />
+              {isInteractive ? (
+                <p className="text-xs text-emerald-500/80">
+                  Interactive card — the image is wrapped in a link, so clicking it on your profile opens your sign page where visitors leave signatures.
+                </p>
+              ) : null}
             </div>
 
             {/* HTML */}
@@ -502,7 +519,7 @@ function BuildPageContent() {
               <div className="flex items-center justify-between">
                 <span className="text-xs text-neutral-500 uppercase">HTML</span>
                 <button
-                  onClick={() => copyToClipboard(htmlSnippet, "html")}
+                  onClick={() => copyToClipboard(htmlLinked, "html")}
                   className="text-xs text-neutral-300 hover:text-neutral-100"
                 >
                   {copiedText === "html" ? "copied!" : "copy"}
@@ -511,7 +528,7 @@ function BuildPageContent() {
               <input
                 type="text"
                 readOnly
-                value={htmlSnippet}
+                value={htmlLinked}
                 onClick={(e) => (e.target as HTMLInputElement).select()}
                 className="rounded-md border border-neutral-800 bg-neutral-900/30 px-3 py-1.5 font-mono text-xs text-neutral-400 outline-none"
               />
@@ -533,7 +550,7 @@ function BuildPageContent() {
                 Share on X
               </button>
               <button
-                onClick={() => copyToClipboard(markdownSnippet, "github")}
+                onClick={() => copyToClipboard(markdownLinked, "github")}
                 className="rounded-md bg-neutral-100 px-3 py-2 text-xs font-medium text-neutral-950 transition-all hover:bg-neutral-200"
               >
                 {copiedText === "github" ? "Copied to clipboard!" : "Copy to GitHub Profile"}

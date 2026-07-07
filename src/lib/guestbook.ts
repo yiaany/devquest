@@ -68,6 +68,18 @@ function redisConfigured(): boolean {
   return redisCredentials() !== null;
 }
 
+/**
+ * Whether a durable (shared) backend is configured.
+ *
+ * In production on serverless (Vercel), the in-memory fallback is NOT durable:
+ * each request may hit a different, short-lived instance, so a write on one is
+ * invisible to the next read. Callers use this to warn/behave correctly when
+ * persistence isn't actually available.
+ */
+export function isGuestbookDurable(): boolean {
+  return redisConfigured();
+}
+
 let redisClientPromise: Promise<import("@upstash/redis").Redis> | null = null;
 
 async function getRedis(): Promise<import("@upstash/redis").Redis> {
@@ -163,5 +175,82 @@ export async function countEntries(owner: string): Promise<number> {
     return (memoryStore.get(key) ?? []).length;
   } catch {
     return 0;
+  }
+}
+
+/**
+ * Delete a single signature from an owner's wall, identified by its `at`
+ * timestamp (unique enough per owner for moderation). Used by the owner-only
+ * moderation endpoint.
+ *
+ * @returns `true` if an entry was removed, `false` otherwise.
+ */
+export async function deleteEntry(owner: string, at: number): Promise<boolean> {
+  if (!Number.isFinite(at)) return false;
+  const key = guestbookKey(owner);
+  try {
+    if (redisConfigured()) {
+      const redis = await getRedis();
+      // Read the current list, drop the matching entry, rewrite atomically-ish.
+      const raw = await redis.lrange(key, 0, GUESTBOOK_MAX - 1);
+      const kept: string[] = [];
+      let removed = false;
+      for (const r of raw) {
+        const parsed =
+          typeof r === "object" && r !== null
+            ? (r as GuestbookEntry)
+            : (() => {
+                try {
+                  return JSON.parse(r as string) as GuestbookEntry;
+                } catch {
+                  return null;
+                }
+              })();
+        if (parsed && parsed.at === at && !removed) {
+          removed = true;
+          continue;
+        }
+        // Preserve original serialization for surviving entries.
+        kept.push(typeof r === "string" ? r : JSON.stringify(r));
+      }
+      if (!removed) return false;
+      // Replace the list: delete then re-push in original order (newest first).
+      const multi = redis.multi();
+      multi.del(key);
+      if (kept.length > 0) {
+        // rpush preserves order; kept is already newest-first.
+        multi.rpush(key, ...kept);
+      }
+      await multi.exec();
+      return true;
+    }
+    const list = memoryStore.get(key) ?? [];
+    const next = list.filter((e) => e.at !== at);
+    if (next.length === list.length) return false;
+    memoryStore.set(key, next);
+    return true;
+  } catch (error) {
+    console.error("[guestbook] delete failed:", error);
+    return false;
+  }
+}
+
+/**
+ * Clear an owner's entire guestbook. Owner-only.
+ * @returns `true` on success.
+ */
+export async function clearGuestbook(owner: string): Promise<boolean> {
+  const key = guestbookKey(owner);
+  try {
+    if (redisConfigured()) {
+      const redis = await getRedis();
+      await redis.del(key);
+    } else {
+      memoryStore.delete(key);
+    }
+    return true;
+  } catch (error) {
+    console.error("[guestbook] clear failed:", error);
+    return false;
   }
 }

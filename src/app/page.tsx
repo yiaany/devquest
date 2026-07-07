@@ -171,7 +171,7 @@ export default function Home() {
               A README that people can actually sign.
             </h3>
             <p className="mt-4 text-sm leading-relaxed text-neutral-400 sm:text-base">
-              The Guestbook card turns a static README into a living wall. Visitors leave a signed message, and the card re-renders with their real signatures. Backed by a public sign API — sanitized, length-capped, and cached.
+              The Guestbook card turns a static README into a living wall. Visitors leave a signed message, and the card re-renders with their real signatures. Wrap it in a link and readers can click straight through to sign — and as the owner, you can moderate any entry. Backed by a public sign API — sanitized, length-capped, and cached.
             </p>
             <div className="mt-6 rounded-lg border border-neutral-900 bg-neutral-950 p-4 font-mono text-xs text-neutral-500">
               <span className="text-neutral-600">visit to sign →</span>{" "}

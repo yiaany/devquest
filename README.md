@@ -38,7 +38,7 @@ DevQuest generates clean, live-rendered cards from your real GitHub data. Pick f
 ## Features
 
 - **33 card templates** — profile heroes, stat grids, receipts, shields, rank badges, contribution heatmaps & gauges, streak flames, language donuts/ladders/crowns, repo showcases & scatter plots, dev ID cards, and more
-- **Live interactivity** — a **Guestbook** card that renders real visitor signatures, plus a **Poll** card, backed by a public sign API
+- **Live interactivity** — a **Guestbook** card that renders real visitor signatures (with owner-only moderation), plus a **Poll** card, backed by a public sign API
 - **10 art-style frames** — terminal, neobrutalism, glass, pixel, minimal, outrun, blueprint, sketch, sticker, tape
 - **9 color themes** — macos, matrix, cyberpunk, paper, dracula, nord, gruvbox, tokyonight, synthwave
 - **30 ASCII arts** to pin on the side of your card
@@ -69,21 +69,31 @@ https://devquest-mu.vercel.app/card/<username>.svg?template=profile-hero&theme=d
 
 The Guestbook card turns your profile into a wall visitors can sign.
 
-1. Embed the guestbook card in your README:
+1. Embed the guestbook card in your README. Wrap it in a link so visitors can click through to sign:
    ```markdown
-   ![Guestbook](https://devquest-mu.vercel.app/card/<your-username>.svg?template=guestbook)
+   [![Guestbook](https://devquest-mu.vercel.app/card/<your-username>.svg?template=guestbook)](https://devquest-mu.vercel.app/<your-username>/sign)
    ```
 2. Anyone can visit `https://devquest-mu.vercel.app/<your-username>/sign` and leave a signed message.
 3. The card re-renders with the latest signatures — real interactivity, right inside a static README.
 
+As the profile owner, sign in with GitHub on your own sign page to **moderate** — delete any individual signature, or clear the whole wall.
+
 Backed by a public API:
 
 ```
-GET  /api/guestbook/:owner   → list signatures (newest first)
-POST /api/guestbook/:owner   → add one { name, message }
+GET    /api/guestbook/:owner            → list signatures (newest first)
+POST   /api/guestbook/:owner            → add one { name, message }
+DELETE /api/guestbook/:owner?at=<ts>    → owner-only: remove one signature
+DELETE /api/guestbook/:owner?all=1      → owner-only: clear the wall
 ```
 
 Messages are sanitized and length-capped; the list is a capped rolling window.
+
+> **Persistence note:** signatures are durable only when an Upstash / Vercel KV
+> store is configured (`KV_REST_API_URL` + `KV_REST_API_TOKEN`, or the
+> `UPSTASH_REDIS_REST_*` equivalents). Without it, the API falls back to
+> in-memory storage that does **not** survive across serverless instances — the
+> sign page will warn visitors when this is the case.
 
 ## How to use
 
@@ -114,6 +124,11 @@ GITHUB_CLIENT_SECRET=your_client_secret
 AUTH_SECRET=your_random_secret_string
 GITHUB_TOKEN=your_personal_access_token   # optional, raises rate limit
 NEXTAUTH_URL=http://localhost:3000
+
+# Optional but required for a durable guestbook (Upstash / Vercel KV).
+# Without these, guestbook signatures use non-persistent in-memory storage.
+KV_REST_API_URL=your_upstash_rest_url
+KV_REST_API_TOKEN=your_upstash_rest_token
 ```
 
 ## Deployment

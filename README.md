@@ -1,6 +1,4 @@
-<p align="center">
-  <video src="https://github.com/yiaany/devquest/raw/main/public/0707.mp4" width="650" autoplay loop muted playsinline controls></video>
-</p>
+https://github.com/yiaany/devquest/raw/main/public/0707.mp4
 
 # DevQuest
 

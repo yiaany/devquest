@@ -10,7 +10,6 @@
 
 import type { CardContext } from "@/cards/context";
 import { CardFrame } from "@/cards/styles/frame";
-import { StatLine } from "@/cards/styles/content";
 import { renderStatIcon } from "@/cards/styles/icons";
 import { formatCount, truncate } from "@/cards/primitives";
 
@@ -49,17 +48,32 @@ export function renderRepoStats(ctx: CardContext): React.ReactNode {
                 {truncate(repo.name, 28)}
               </div>
             </div>
-            {rows.map((row, i) => (
-              <StatLine
-                key={`${row.key}-${i}`}
-                label={row.label}
-                value={row.value}
-                icon={renderStatIcon(row.key, accent)}
-                theme={theme}
-                accent={accent}
-                height={36}
-              />
-            ))}
+            <div style={{ display: "flex", flexWrap: "wrap", width: "100%", marginTop: 8 }}>
+              {rows.map((row, i) => (
+                <div
+                  key={`${row.key}-${i}`}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    width: "50%",
+                    marginBottom: 14,
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <div style={{ display: "flex", width: 14, height: 14 }}>
+                      {renderStatIcon(row.key, accent, 14)}
+                    </div>
+                    <div style={{ display: "flex", width: 8 }} />
+                    <span style={{ color: theme.muted, fontSize: 11, textTransform: "uppercase", letterSpacing: 1 }}>
+                      {row.label}
+                    </span>
+                  </div>
+                  <span style={{ color: theme.fg, fontSize: 18, fontWeight: 700, marginTop: 4 }}>
+                    {row.value}
+                  </span>
+                </div>
+              ))}
+            </div>
           </>
         ) : (
           <span style={{ color: theme.muted, fontSize: 14 }}>No public repositories to display.</span>

@@ -57,17 +57,29 @@ export function renderRepoShowcase(ctx: CardContext): React.ReactNode {
             </div>
 
             {/* Runners-up */}
-            <div style={{ display: "flex", flexDirection: "column" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {rest.map((r) => (
                 <div
                   key={r.name}
-                  style={{ display: "flex", alignItems: "center", height: 28 }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    height: 42,
+                    paddingLeft: 14,
+                    paddingRight: 16,
+                    borderRadius: 8,
+                    backgroundColor: alpha(accent, 0.05),
+                    border: `1px solid ${alpha(accent, 0.15)}`,
+                  }}
                 >
-                  <span style={{ color: theme.muted, fontSize: 13, flex: 1 }}>
-                    {truncate(r.name, 34)}
+                  <span style={{ color: theme.fg, fontSize: 14, fontWeight: 700, flex: 1 }}>
+                    {truncate(r.name, 28)}
                   </span>
-                  <div style={{ display: "flex", width: 16 }} />
-                  <span style={{ color: theme.fg, fontSize: 13, fontWeight: 700 }}>
+                  <div style={{ display: "flex", width: 14, height: 14 }}>
+                    {renderStatIcon("stars", accent, 14)}
+                  </div>
+                  <div style={{ display: "flex", width: 6 }} />
+                  <span style={{ color: accent, fontSize: 13, fontWeight: 700 }}>
                     {formatCount(r.stars)}
                   </span>
                 </div>

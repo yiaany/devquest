@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://devquest-mu.vercel.app/card/octocat.svg?template=neofetch&theme=dracula&style=terminal&ascii=25" width="650" alt="DevQuest Banner" />
+  <video src="public/0707.mp4" width="650" autoplay loop muted playsinline controls></video>
 </p>
 
 # DevQuest

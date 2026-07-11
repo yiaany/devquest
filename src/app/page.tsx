@@ -99,13 +99,13 @@ export default function Home() {
           <BorderBeam duration={6} colorFrom="#c9d1d9" colorTo="#00ff9c" borderWidth={1} />
           {/* Card SVG embed wrapper */}
           <div className="overflow-hidden rounded-lg bg-neutral-950">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/card/octocat.svg?template=neofetch&theme=dracula&style=terminal&ascii=25"
-              alt="DevQuest Card Preview"
+            <video
+              src="/0707.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
               className="w-full object-cover"
-              width={800}
-              height={300}
             />
           </div>
         </div>

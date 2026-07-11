@@ -26,7 +26,6 @@ import { renderSkillBars } from "@/cards/templates/skill-bars";
 import { renderCodeWeather } from "@/cards/templates/code-weather";
 import { renderMoodRing } from "@/cards/templates/mood-ring";
 import { renderQuote } from "@/cards/templates/quote";
-import { renderRepoStats } from "@/cards/templates/repo-stats";
 import { renderTopRepos } from "@/cards/templates/top-repos";
 import { renderGuestbook } from "@/cards/templates/guestbook";
 import { renderPoll } from "@/cards/templates/poll";
@@ -49,7 +48,6 @@ import { renderLanguageCrown } from "@/cards/templates/language-crown";
 import { renderNowPlaying } from "@/cards/templates/now-playing";
 // Repository
 import { renderStarsPerRepo } from "@/cards/templates/stars-per-repo";
-import { renderRepoShowcase } from "@/cards/templates/repo-showcase";
 import { renderStarSpread } from "@/cards/templates/repo-scatter";
 
 /** Top-level categories used to group cards in the gallery. */
@@ -384,16 +382,6 @@ export const CARDS: CardEntry[] = [
 
   // ── Repository ───────────────────────────────────────────────────
   {
-    id: "repo-stats",
-    name: "Repo Stats",
-    description: "Stars / forks / issues for a specific repository in your account.",
-    category: "repo",
-    artStyles: ["terminal", "minimal", "glass", "neobrutalism"],
-    defaultArtStyle: "terminal",
-    controls: { title: true, repo: true },
-    render: renderRepoStats,
-  },
-  {
     id: "top-repos",
     name: "Top Repositories",
     description: "Your three most-starred repositories, ranked.",
@@ -402,16 +390,6 @@ export const CARDS: CardEntry[] = [
     defaultArtStyle: "minimal",
     controls: { title: true },
     render: renderTopRepos,
-  },
-  {
-    id: "repo-showcase",
-    name: "Repo Showcase",
-    description: "Your top repository spotlighted, with runners-up listed.",
-    category: "repo",
-    artStyles: [...ART_STYLES],
-    defaultArtStyle: "glass",
-    controls: { title: true },
-    render: renderRepoShowcase,
   },
   {
     id: "stars-per-repo",

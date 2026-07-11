@@ -27,7 +27,7 @@ export function renderPolyglot(ctx: CardContext): React.ReactNode {
     >
       <div style={{ display: "flex", flex: 1, alignItems: "center" }}>
         <div style={{ display: "flex", flexDirection: "column", marginRight: 44 }}>
-          <span style={{ color: accent, fontSize: 72, fontWeight: 700, lineHeight: "72px" }}>
+          <span style={{ color: accent, fontSize: 72, fontWeight: 700, lineHeight: 1 }}>
             {langs.length}
           </span>
           <span style={{ color: theme.muted, fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>

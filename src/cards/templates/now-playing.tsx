@@ -48,7 +48,7 @@ export function renderNowPlaying(ctx: CardContext): React.ReactNode {
           <span style={{ color: theme.muted, fontSize: 11, letterSpacing: 2, textTransform: "uppercase", marginBottom: 4 }}>
             ► Now coding
           </span>
-          <span style={{ color: theme.fg, fontSize: 24, fontWeight: 700, lineHeight: "28px" }}>
+          <span style={{ color: theme.fg, fontSize: 24, fontWeight: 700, lineHeight: 1.1 }}>
             {truncate(lang, 18)}
           </span>
           <span style={{ color: accent, fontSize: 14, marginBottom: 14 }}>{`@${stats.username}`}</span>

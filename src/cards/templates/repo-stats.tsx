@@ -44,7 +44,7 @@ export function renderRepoStats(ctx: CardContext): React.ReactNode {
               <div style={{ display: "flex", width: 24, height: 24, marginRight: 12 }}>
                 {renderStatIcon("repos", accent, 24)}
               </div>
-              <span style={{ color: theme.fg, fontSize: 22, fontWeight: 700 }}>
+              <span style={{ color: theme.fg, fontSize: 20, fontWeight: 700, lineHeight: 1.2 }}>
                 {truncate(repo.name, 28)}
               </span>
             </div>

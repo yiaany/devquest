@@ -23,10 +23,10 @@ export function renderQuote(ctx: CardContext): React.ReactNode {
     >
       <div style={{ display: "flex", flexDirection: "column", flex: 1, justifyContent: "center" }}>
         {/* Big opening quote mark */}
-        <span style={{ color: alpha(accent, 0.5), fontSize: 64, fontWeight: 700, lineHeight: "48px" }}>
+        <span style={{ color: alpha(accent, 0.5), fontSize: 64, fontWeight: 700, lineHeight: 1 }}>
           &ldquo;
         </span>
-        <span style={{ color: theme.fg, fontSize: 24, fontWeight: 700, lineHeight: "34px", marginTop: 8 }}>
+        <span style={{ color: theme.fg, fontSize: 22, fontWeight: 700, lineHeight: 1.3, marginTop: 8 }}>
           {q.text}
         </span>
         <div style={{ display: "flex", alignItems: "center", marginTop: 18 }}>

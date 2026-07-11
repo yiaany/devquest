@@ -34,10 +34,10 @@ export function renderLanguageCrown(ctx: CardContext): React.ReactNode {
           <>
             <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
               <SectionLabel text="Primary language" theme={theme} />
-              <span style={{ color: topColor, fontSize: 46, fontWeight: 700, lineHeight: "48px" }}>
+              <span style={{ color: topColor, fontSize: 38, fontWeight: 700, lineHeight: 1.2 }}>
                 {truncate(top.name, 14)}
               </span>
-              <span style={{ color: theme.fg, fontSize: 22, fontWeight: 700, marginTop: 4 }}>
+              <span style={{ color: theme.fg, fontSize: 22, fontWeight: 700, marginTop: 12 }}>
                 {`${top.percent}% of code`}
               </span>
             </div>

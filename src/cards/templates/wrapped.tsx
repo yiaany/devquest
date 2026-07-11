@@ -29,7 +29,7 @@ export function renderWrapped(ctx: CardContext): React.ReactNode {
         </span>
 
         <div style={{ display: "flex", alignItems: "flex-end", marginTop: 6, marginBottom: 18 }}>
-          <span style={{ color: accent, fontSize: 52, fontWeight: 700, lineHeight: "54px" }}>
+          <span style={{ color: accent, fontSize: 52, fontWeight: 700, lineHeight: 1.1 }}>
             {formatCount(stats.contributionsLastYear)}
           </span>
           <span style={{ color: theme.fg, fontSize: 16, marginLeft: 10, marginBottom: 8 }}>

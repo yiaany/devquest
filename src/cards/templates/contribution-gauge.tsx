@@ -72,7 +72,7 @@ export function renderContributionGauge(ctx: CardContext): React.ReactNode {
               justifyContent: "center",
             }}
           >
-            <span style={{ color: theme.fg, fontSize: 38, fontWeight: 700, lineHeight: "40px" }}>
+            <span style={{ color: theme.fg, fontSize: 38, fontWeight: 700, lineHeight: 1.1 }}>
               {formatCount(value)}
             </span>
             <span style={{ color: theme.muted, fontSize: 11, letterSpacing: 1, textTransform: "uppercase" }}>

@@ -67,7 +67,7 @@ export function renderMoodRing(ctx: CardContext): React.ReactNode {
           <span style={{ color: mood.color, fontSize: 30, fontWeight: 700, marginTop: 2, marginBottom: 6 }}>
             {mood.label}
           </span>
-          <span style={{ color: theme.fg, fontSize: 13, lineHeight: "20px" }}>{mood.caption}</span>
+          <span style={{ color: theme.fg, fontSize: 13, lineHeight: 1.3 }}>{mood.caption}</span>
         </div>
       </div>
     </CardFrame>

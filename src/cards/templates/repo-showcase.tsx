@@ -42,7 +42,7 @@ export function renderRepoShowcase(ctx: CardContext): React.ReactNode {
                 marginBottom: 14,
               }}
             >
-              <span style={{ color: theme.fg, fontSize: 22, fontWeight: 700, marginBottom: 10 }}>
+              <span style={{ color: theme.fg, fontSize: 20, fontWeight: 700, lineHeight: 1.2, marginBottom: 12 }}>
                 {truncate(top.name, 32)}
               </span>
               <div style={{ display: "flex", alignItems: "center" }}>

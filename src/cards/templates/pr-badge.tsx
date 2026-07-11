@@ -36,7 +36,7 @@ export function renderPrBadge(ctx: CardContext): React.ReactNode {
               <path d="M6 12h6a3 3 0 0 0 3-3V9" stroke={accent} strokeWidth="2" />
             </svg>
           </div>
-          <span style={{ color: accent, fontSize: 64, fontWeight: 700, lineHeight: "64px" }}>
+          <span style={{ color: accent, fontSize: 64, fontWeight: 700, lineHeight: 1 }}>
             {formatCount(prs)}
           </span>
         </div>

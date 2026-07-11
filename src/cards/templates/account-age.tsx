@@ -28,7 +28,7 @@ export function renderAccountAge(ctx: CardContext): React.ReactNode {
         <SectionLabel text="Time on GitHub" theme={theme} />
 
         <div style={{ display: "flex", alignItems: "flex-end", marginBottom: 6 }}>
-          <span style={{ color: accent, fontSize: 64, fontWeight: 700, lineHeight: "66px" }}>
+          <span style={{ color: accent, fontSize: 64, fontWeight: 700, lineHeight: 1 }}>
             {years}
           </span>
           <span style={{ color: theme.fg, fontSize: 20, marginLeft: 12, marginBottom: 10 }}>

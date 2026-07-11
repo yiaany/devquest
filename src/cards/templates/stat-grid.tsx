@@ -52,7 +52,7 @@ export function renderStatGrid(ctx: CardContext): React.ReactNode {
               marginBottom: 12,
             }}
           >
-            <span style={{ color: theme.fg, fontSize: 32, fontWeight: 700, lineHeight: "36px" }}>
+            <span style={{ color: theme.fg, fontSize: 32, fontWeight: 700, lineHeight: 1.1 }}>
               {c.value}
             </span>
             <span

@@ -44,7 +44,7 @@ export function renderTerminal(ctx: CardContext): React.ReactNode {
             {asciiArt.map((line, idx) => (
               <span
                 key={idx}
-                style={{ color: accent, fontSize: 13, lineHeight: "26px", whiteSpace: "pre" }}
+                style={{ color: accent, fontSize: 13, lineHeight: 2, whiteSpace: "pre" }}
               >
                 {line}
               </span>

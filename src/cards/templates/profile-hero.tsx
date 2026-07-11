@@ -47,7 +47,7 @@ export function renderProfileHero(ctx: CardContext): React.ReactNode {
             <span style={{ color: accent, fontSize: 34, fontWeight: 700 }}>{initial}</span>
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={{ color: theme.fg, fontSize: 26, fontWeight: 700, lineHeight: "28px" }}>
+            <span style={{ color: theme.fg, fontSize: 26, fontWeight: 700, lineHeight: 1.1 }}>
               {truncate(stats.name || stats.username, 22)}
             </span>
             <span style={{ color: accent, fontSize: 14 }}>{`@${stats.username}`}</span>
@@ -55,7 +55,7 @@ export function renderProfileHero(ctx: CardContext): React.ReactNode {
         </div>
 
         {stats.bio ? (
-          <span style={{ color: theme.muted, fontSize: 13, lineHeight: "20px", marginBottom: 18 }}>
+          <span style={{ color: theme.muted, fontSize: 13, lineHeight: 1.3, marginBottom: 18 }}>
             {truncate(stats.bio, 92)}
           </span>
         ) : null}

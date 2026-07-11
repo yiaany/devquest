@@ -28,7 +28,7 @@ export function renderStarsPerRepo(ctx: CardContext): React.ReactNode {
         <SectionLabel text="Average stars per repository" theme={theme} />
 
         <div style={{ display: "flex", alignItems: "flex-end", marginBottom: 24 }}>
-          <span style={{ color: accent, fontSize: 60, fontWeight: 700, lineHeight: "62px" }}>
+          <span style={{ color: accent, fontSize: 60, fontWeight: 700, lineHeight: 1 }}>
             {avgLabel}
           </span>
           <span style={{ color: theme.fg, fontSize: 16, marginLeft: 12, marginBottom: 10 }}>

@@ -215,7 +215,7 @@ export function BigStat({
 }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", marginRight: 28 }}>
-      <span style={{ color: accent, fontSize: 34, fontWeight: 700, lineHeight: "38px" }}>
+      <span style={{ color: accent, fontSize: 34, fontWeight: 700, lineHeight: 1.1 }}>
         {value}
       </span>
       <span style={{ color: theme.muted, fontSize: 11, textTransform: "uppercase", letterSpacing: 1 }}>

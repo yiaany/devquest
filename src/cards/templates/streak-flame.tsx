@@ -39,7 +39,7 @@ export function renderStreakFlame(ctx: CardContext): React.ReactNode {
             </svg>
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={{ color: accent, fontSize: 56, fontWeight: 700, lineHeight: "56px" }}>
+            <span style={{ color: accent, fontSize: 56, fontWeight: 700, lineHeight: 1 }}>
               {`${current}`}
             </span>
             <span style={{ color: theme.muted, fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>

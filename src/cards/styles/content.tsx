@@ -29,20 +29,23 @@ export function StatLine({
   return (
     <div style={{ display: "flex", alignItems: "center", height, marginBottom: 4 }}>
       {icon ? (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 16,
-            height: 16,
-            marginRight: 12,
-          }}
-        >
-          {icon}
-        </div>
+        <>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 16,
+              height: 16,
+            }}
+          >
+            {icon}
+          </div>
+          <div style={{ display: "flex", width: 12 }} />
+        </>
       ) : null}
-      <span style={{ color: theme.muted, fontSize: 13, marginRight: 8 }}>{label}</span>
+      <span style={{ color: theme.muted, fontSize: 13 }}>{label}</span>
+      <div style={{ display: "flex", width: 8 }} />
       <div
         style={{
           display: "flex",
@@ -50,9 +53,9 @@ export function StatLine({
           height: 1,
           borderBottom: `1px dashed ${theme.border}`,
           marginTop: 4,
-          marginRight: 8,
         }}
       />
+      <div style={{ display: "flex", width: 8 }} />
       <span style={{ color: accent, fontSize: 14, fontWeight: 700 }}>{value}</span>
     </div>
   );
@@ -162,16 +165,18 @@ export function SectionLabel({
 /** A colored dot (language/legend swatch). */
 export function Dot({ color, size = 8 }: { color: string; size?: number }) {
   return (
-    <div
-      style={{
-        display: "flex",
-        width: size,
-        height: size,
-        borderRadius: size,
-        backgroundColor: color,
-        marginRight: 8,
-      }}
-    />
+    <div style={{ display: "flex", alignItems: "center" }}>
+      <div
+        style={{
+          display: "flex",
+          width: size,
+          height: size,
+          borderRadius: size,
+          backgroundColor: color,
+        }}
+      />
+      <div style={{ display: "flex", width: 8 }} />
+    </div>
   );
 }
 

@@ -42,6 +42,7 @@ export function renderLanguageCrown(ctx: CardContext): React.ReactNode {
               </span>
             </div>
 
+            <div style={{ display: "flex", width: 24 }} />
             <div
               style={{
                 display: "flex",

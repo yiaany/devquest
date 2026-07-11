@@ -31,7 +31,8 @@ export function renderStarsPerRepo(ctx: CardContext): React.ReactNode {
           <span style={{ color: accent, fontSize: 60, fontWeight: 700, lineHeight: 1 }}>
             {avgLabel}
           </span>
-          <span style={{ color: theme.fg, fontSize: 16, marginLeft: 12, marginBottom: 10 }}>
+          <div style={{ display: "flex", width: 12 }} />
+          <span style={{ color: theme.fg, fontSize: 16, marginBottom: 10 }}>
             stars / repo
           </span>
         </div>

@@ -41,12 +41,13 @@ export function renderRepoStats(ctx: CardContext): React.ReactNode {
         {repo ? (
           <>
             <div style={{ display: "flex", alignItems: "center", marginBottom: 18 }}>
-              <div style={{ display: "flex", width: 24, height: 24, marginRight: 12 }}>
+              <div style={{ display: "flex", width: 24, height: 24 }}>
                 {renderStatIcon("repos", accent, 24)}
               </div>
-              <span style={{ color: theme.fg, fontSize: 20, fontWeight: 700, lineHeight: 1.2 }}>
+              <div style={{ display: "flex", width: 12 }} />
+              <div style={{ display: "flex", color: theme.fg, fontSize: 20, fontWeight: 700, lineHeight: 1.2 }}>
                 {truncate(repo.name, 28)}
-              </span>
+              </div>
             </div>
             {rows.map((row, i) => (
               <StatLine

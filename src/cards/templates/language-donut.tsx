@@ -56,7 +56,6 @@ export function renderLanguageDonut(ctx: CardContext): React.ReactNode {
             display: "flex",
             width: SIZE,
             height: SIZE,
-            marginRight: 40,
             alignItems: "center",
             justifyContent: "center",
           }}
@@ -87,6 +86,8 @@ export function renderLanguageDonut(ctx: CardContext): React.ReactNode {
             ))}
           </svg>
         </div>
+
+        <div style={{ display: "flex", width: 40 }} />
 
         {/* Legend */}
         <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>

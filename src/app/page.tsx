@@ -100,12 +100,14 @@ export default function Home() {
           {/* Card SVG embed wrapper */}
           <div className="overflow-hidden rounded-lg bg-neutral-950">
             <video
-              src="/0707.mp4"
               autoPlay
               loop
               muted
               playsInline
               className="w-full object-cover"
+              dangerouslySetInnerHTML={{
+                __html: `<source src="/0707.mp4" type="video/mp4" />`
+              }}
             />
           </div>
         </div>

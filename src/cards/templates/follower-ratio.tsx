@@ -34,7 +34,8 @@ export function renderFollowerRatio(ctx: CardContext): React.ReactNode {
           <span style={{ color: accent, fontSize: 48, fontWeight: 700, lineHeight: 1.1 }}>
             {`${ratio.toFixed(ratio >= 10 ? 0 : 1)}×`}
           </span>
-          <span style={{ color: theme.muted, fontSize: 14, marginLeft: 10, marginBottom: 8 }}>
+          <div style={{ display: "flex", width: 10 }} />
+          <span style={{ color: theme.muted, fontSize: 14, marginBottom: 8 }}>
             follower ratio
           </span>
         </div>

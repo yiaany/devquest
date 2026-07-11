@@ -42,13 +42,14 @@ export function renderRepoShowcase(ctx: CardContext): React.ReactNode {
                 marginBottom: 14,
               }}
             >
-              <span style={{ color: theme.fg, fontSize: 20, fontWeight: 700, lineHeight: 1.2, marginBottom: 12 }}>
+              <div style={{ display: "flex", color: theme.fg, fontSize: 20, fontWeight: 700, lineHeight: 1.2, marginBottom: 12 }}>
                 {truncate(top.name, 32)}
-              </span>
+              </div>
               <div style={{ display: "flex", alignItems: "center" }}>
-                <div style={{ display: "flex", width: 18, height: 18, marginRight: 8 }}>
+                <div style={{ display: "flex", width: 18, height: 18 }}>
                   {renderStatIcon("stars", accent, 18)}
                 </div>
+                <div style={{ display: "flex", width: 8 }} />
                 <span style={{ color: accent, fontSize: 16, fontWeight: 700 }}>
                   {`${formatCount(top.stars)} stars`}
                 </span>
@@ -65,6 +66,7 @@ export function renderRepoShowcase(ctx: CardContext): React.ReactNode {
                   <span style={{ color: theme.muted, fontSize: 13, flex: 1 }}>
                     {truncate(r.name, 34)}
                   </span>
+                  <div style={{ display: "flex", width: 16 }} />
                   <span style={{ color: theme.fg, fontSize: 13, fontWeight: 700 }}>
                     {formatCount(r.stars)}
                   </span>

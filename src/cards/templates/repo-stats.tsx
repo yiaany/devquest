@@ -36,7 +36,7 @@ export function renderRepoStats(ctx: CardContext): React.ReactNode {
 
   return (
     <CardFrame artStyle={artStyle} theme={theme} accent={accent} title={title} animate={animate}>
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, justifyContent: "center" }}>
+      <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
         {repo ? (
           <>
             <div style={{ display: "flex", alignItems: "center", marginBottom: 18 }}>

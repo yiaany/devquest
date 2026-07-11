@@ -1,6 +1,10 @@
+<p align="center">
+  <img src="https://devquest-mu.vercel.app/card/octocat.svg?template=neofetch&theme=dracula&style=terminal&ascii=25" width="650" alt="DevQuest Banner" />
+</p>
+
 # DevQuest
 
-Turn your GitHub profile into something actually worth looking at.
+> Turn your GitHub profile into something actually worth looking at.
 
 DevQuest generates clean, live-rendered cards from your real GitHub data. Pick from **33 card templates**, **15 art-style frames**, **19 color themes** and **40 ASCII arts**, drop the snippet in your profile README, and it updates automatically. No static images, no manual updates, no bullshit.
 

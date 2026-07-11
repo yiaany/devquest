@@ -1,5 +1,5 @@
 <p align="center">
-  <video src="public/0707.mp4" width="650" autoplay loop muted playsinline controls></video>
+  <video src="https://github.com/yiaany/devquest/raw/main/public/0707.mp4" width="650" autoplay loop muted playsinline controls></video>
 </p>
 
 # DevQuest

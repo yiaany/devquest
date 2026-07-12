@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { SITE } from "@/lib/config";
 import SessionProviderWrapper from "@/components/SessionProviderWrapper";
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -31,6 +32,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} bg-terminal-bg text-terminal-text antialiased`}
       >
         <SessionProviderWrapper>{children}</SessionProviderWrapper>
+        <Analytics />
       </body>
     </html>
   );

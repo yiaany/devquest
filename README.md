@@ -1,5 +1,5 @@
 <p align="center">
-  <video src="https://raw.githubusercontent.com/yiaany/devquest/main/public/0707.mp4" width="650" autoplay loop muted playsinline controls></video>
+  <a href="https://www.producthunt.com/products/devquest-2?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-devquest-2" target="_blank" rel="noopener noreferrer"><img alt="DevQuest - Interactive terminal cards for your GitHub profile README    | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1194089&amp;theme=light&amp;t=1783850670294"></a>
 </p>
 
 # DevQuest

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { CARDS, CARD_CATEGORIES, CATEGORY_LABELS, type CardCategory } from "@/cards/registry";
@@ -64,18 +64,6 @@ type TabId = "all" | CardCategory;
 type OpenMenu = "template" | "style" | "theme" | null;
 type Mode = "templates" | "battle";
 
-interface GitHubRepoOption {
-  name: string;
-  owner: string;
-  fullName: string;
-  url: string;
-  description: string;
-  license: string;
-  stars: number;
-  fork: boolean;
-  private: boolean;
-}
-
 function buildQuery(params: {
   template: string;
   style: ArtStyle;
@@ -135,9 +123,6 @@ export default function Home() {
   const [yesterdayProjects, setYesterdayProjects] = useState<BattleProject[]>([]);
   const [timeLeft, setTimeLeft] = useState("");
   const [submittingProject, setSubmittingProject] = useState(false);
-  const [reposLoading, setReposLoading] = useState(false);
-  const [githubRepos, setGithubRepos] = useState<GitHubRepoOption[]>([]);
-  const [selectedRepoFullName, setSelectedRepoFullName] = useState("");
 
   // Form Fields
   const [repoOwner, setRepoOwner] = useState("");
@@ -186,39 +171,12 @@ export default function Home() {
     setUploadedScreenshots((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const loadGitHubRepos = useCallback(async () => {
-    if (!loggedInUser) return;
-    setReposLoading(true);
-    try {
-      const res = await fetch("/api/github/repos", { cache: "no-store" });
-      if (res.ok) {
-        const data = (await res.json()) as { repos?: GitHubRepoOption[] };
-        setGithubRepos(data.repos ?? []);
-      }
-    } catch (error) {
-      console.error("Failed to load GitHub repositories:", error);
-    } finally {
-      setReposLoading(false);
-    }
-  }, [loggedInUser]);
-
-  const selectGitHubRepo = (fullName: string) => {
-    setSelectedRepoFullName(fullName);
-    const repo = githubRepos.find((item) => item.fullName === fullName);
-    if (!repo) return;
-    setRepoOwner(repo.owner);
-    setRepoName(repo.name);
-    setProdName(repo.name);
-    setTagline(repo.description.slice(0, 60));
-    setDescription(repo.description.slice(0, 260));
-    setLicense(repo.license || "-");
-    setAlternativeLinksRaw(repo.url);
-  };
-
   // Selected Battle Project Details
   const [selectedProject, setSelectedProject] = useState<BattleProject | null>(null);
   const [commentText, setCommentText] = useState("");
   const [commenting, setCommenting] = useState(false);
+  const [editingProject, setEditingProject] = useState(false);
+  const [projectActionError, setProjectActionError] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -250,12 +208,6 @@ export default function Home() {
       loadBattleData();
     }
   }, [mounted]);
-
-  useEffect(() => {
-    if (mounted && mode === "battle" && loggedInUser) {
-      loadGitHubRepos();
-    }
-  }, [mounted, mode, loggedInUser, loadGitHubRepos]);
 
   // Time left timer (resets daily at 07:00 UTC)
   useEffect(() => {
@@ -424,23 +376,15 @@ export default function Home() {
       return;
     }
 
+    setSubmittingProject(true);
     setSubmitError(null);
     setSubmitSuccess(false);
-
-    const cleanRepoOwner = repoOwner.trim();
-    const cleanRepoName = repoName.trim();
-    const cleanName = prodName.trim();
-    const cleanTagline = tagline.trim();
-    const cleanDescription = description.trim();
-    const cleanLicense = license.trim() || "-";
-    const cleanVideoLink = videoLink.trim();
 
     // Form parsing
     const keywords = keywordsRaw
       .split(",")
       .map((k) => k.trim())
-      .filter(Boolean)
-      .slice(0, 3);
+      .filter(Boolean);
     const alternativeLinks = alternativeLinksRaw
       .split(",")
       .map((l) => l.trim())
@@ -450,44 +394,22 @@ export default function Home() {
       .map((m) => m.trim())
       .filter(Boolean);
 
-    if (!cleanRepoOwner || !cleanRepoName) {
-      setSubmitError("Укажи GitHub owner и repository name.");
-      return;
-    }
-
-    if (!cleanName || !cleanTagline || !cleanDescription) {
-      setSubmitError("Заполни Name, Tagline и Description.");
-      return;
-    }
-
-    if (!uploadedThumbnail) {
-      setSubmitError("Загрузи thumbnail/logo проекта файлом.");
-      return;
-    }
-
-    if (uploadedScreenshots.length < 2) {
-      setSubmitError("Загрузи минимум 2 скриншота проекта.");
-      return;
-    }
-
-    setSubmittingProject(true);
-
     try {
       const res = await fetch("/api/battle", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          repoOwner: cleanRepoOwner,
-          repoName: cleanRepoName,
-          name: cleanName,
-          tagline: cleanTagline,
-          description: cleanDescription,
+          repoOwner,
+          repoName,
+          name: prodName,
+          tagline,
+          description,
           keywords,
           alternativeLinks,
-          license: cleanLicense,
+          license: license || "-",
           thumbnail: uploadedThumbnail,
           screenshots: uploadedScreenshots,
-          videoLink: cleanVideoLink,
+          videoLink,
           makers,
         }),
       });
@@ -496,7 +418,6 @@ export default function Home() {
         setSubmitSuccess(true);
         setRepoOwner("");
         setRepoName("");
-        setSelectedRepoFullName("");
         setProdName("");
         setTagline("");
         setDescription("");
@@ -556,6 +477,72 @@ export default function Home() {
     }
   };
 
+  const startEditSelectedProject = () => {
+    if (!selectedProject) return;
+    setEditingProject(true);
+    setProjectActionError(null);
+    setProdName(selectedProject.name);
+    setTagline(selectedProject.tagline);
+    setDescription(selectedProject.description);
+    setKeywordsRaw(selectedProject.keywords.join(", "));
+    setAlternativeLinksRaw(selectedProject.alternativeLinks.join(", "));
+    setLicense(selectedProject.license === "-" ? "" : selectedProject.license);
+    setUploadedThumbnail(selectedProject.thumbnail);
+    setUploadedScreenshots(selectedProject.screenshots);
+    setVideoLink(selectedProject.videoLink ?? "");
+    setMakersRaw(selectedProject.makers.join(", "));
+  };
+
+  const handleUpdateSelectedProject = async () => {
+    if (!selectedProject) return;
+    setProjectActionError(null);
+    const keywords = keywordsRaw.split(",").map((k) => k.trim()).filter(Boolean).slice(0, 3);
+    const alternativeLinks = alternativeLinksRaw.split(",").map((l) => l.trim()).filter(Boolean);
+    const makers = makersRaw.split(",").map((m) => m.trim()).filter(Boolean);
+
+    const res = await fetch("/api/battle", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        projectId: selectedProject.id,
+        name: prodName.trim(),
+        tagline: tagline.trim(),
+        description: description.trim(),
+        keywords,
+        alternativeLinks,
+        license: license.trim() || "-",
+        thumbnail: uploadedThumbnail,
+        screenshots: uploadedScreenshots,
+        videoLink: videoLink.trim(),
+        makers,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setProjectActionError(data.error ?? "Could not update project.");
+      return;
+    }
+    setSelectedProject(data.project);
+    setTodayProjects((prev) => prev.map((p) => (p.id === data.project.id ? data.project : p)));
+    setEditingProject(false);
+  };
+
+  const handleDeleteSelectedProject = async () => {
+    if (!selectedProject || !window.confirm("Delete this project from today's battle?")) return;
+    setProjectActionError(null);
+    const res = await fetch(`/api/battle?projectId=${encodeURIComponent(selectedProject.id)}`, {
+      method: "DELETE",
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setProjectActionError(data.error ?? "Could not delete project.");
+      return;
+    }
+    setTodayProjects((prev) => prev.filter((p) => p.id !== selectedProject.id));
+    setSelectedProject(null);
+    setEditingProject(false);
+  };
+
   const tabs: { id: TabId; label: string }[] = [
     { id: "all", label: "Trending" },
     ...CARD_CATEGORIES.map((category) => ({ id: category, label: CATEGORY_LABELS[category] })),
@@ -577,10 +564,6 @@ export default function Home() {
             >
               <span>\ (^_^) /</span>
               <span className="text-zinc-500">devquest</span>
-            </Link>
-            <span className="w-2.5 shrink-0 text-zinc-600" aria-hidden="true">/</span>
-            <Link href="/" className="w-[76px] shrink-0 text-sm text-zinc-500 transition-opacity hover:opacity-70">
-              Gallery
             </Link>
           </nav>
 
@@ -641,6 +624,37 @@ export default function Home() {
                 </nav>
               </div>
             </section>
+
+            {todayProjects.length > 0 ? (
+              <section className="mx-auto max-w-[980px] px-4 pb-10 sm:px-6">
+                <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 p-3">
+                  <div className="mb-2 flex items-center justify-between gap-3 px-1">
+                    <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">Top 5 repos today</h2>
+                    <button onClick={() => setMode("battle")} className="text-xs font-medium text-emerald-400 transition-colors hover:text-emerald-300">
+                      Open battle
+                    </button>
+                  </div>
+                  <div className="grid gap-2 sm:grid-cols-5">
+                    {todayProjects.slice(0, 5).map((project, index) => (
+                      <button
+                        key={project.id}
+                        onClick={() => setSelectedProject(project)}
+                        className="min-w-0 rounded-xl border border-zinc-800 bg-[#050505] p-2 text-left transition-colors hover:border-zinc-700"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-zinc-900 text-[10px] font-bold text-zinc-500">#{index + 1}</span>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-xs font-semibold text-zinc-200">{project.name}</p>
+                            <p className="truncate text-[10px] text-zinc-600">{project.repoOwner}/{project.repoName}</p>
+                          </div>
+                          <span className="shrink-0 text-xs font-bold text-emerald-400">▲ {project.votes.length}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            ) : null}
 
             <section className="mx-auto max-w-[1400px] px-4 pb-24 sm:px-6 lg:px-8">
               <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -825,40 +839,27 @@ export default function Home() {
                   <p className="text-xs text-zinc-500 mt-1">Submit your repo to the battle. Star check required.</p>
 
                   <form onSubmit={handleSubmitProject} className="mt-5 space-y-4">
-                    <div>
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="block text-xs font-medium uppercase tracking-[0.12em] text-zinc-600">
-                          GitHub Repository
-                        </span>
-                        <button
-                          type="button"
-                          onClick={loadGitHubRepos}
-                          className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500 transition-colors hover:text-zinc-200"
-                        >
-                          {reposLoading ? "Loading..." : "Refresh"}
-                        </button>
-                      </div>
-                      <select
+                    <label className="block text-xs font-medium uppercase tracking-[0.12em] text-zinc-600">
+                      GitHub Owner
+                      <input
                         required
-                        value={selectedRepoFullName}
-                        onChange={(e) => selectGitHubRepo(e.target.value)}
+                        value={repoOwner}
+                        onChange={(e) => setRepoOwner(e.target.value)}
                         className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600"
-                      >
-                        <option value="">
-                          {loggedInUser ? "Select one of your repositories" : "Sign in to load repositories"}
-                        </option>
-                        {githubRepos.map((repo) => (
-                          <option key={repo.fullName} value={repo.fullName}>
-                            {repo.fullName}{repo.private ? " (private)" : ""}{repo.fork ? " (fork)" : ""}
-                          </option>
-                        ))}
-                      </select>
-                      {repoOwner.trim() && repoName.trim() ? (
-                        <div className="mt-2 rounded-xl border border-emerald-500/10 bg-emerald-500/5 px-3 py-2 text-xs text-emerald-300">
-                          Primary link: https://github.com/{repoOwner.trim()}/{repoName.trim()}
-                        </div>
-                      ) : null}
-                    </div>
+                        placeholder="facebook"
+                      />
+                    </label>
+
+                    <label className="block text-xs font-medium uppercase tracking-[0.12em] text-zinc-600">
+                      GitHub Repo Name
+                      <input
+                        required
+                        value={repoName}
+                        onChange={(e) => setRepoName(e.target.value)}
+                        className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600"
+                        placeholder="react"
+                      />
+                    </label>
 
                     <label className="block text-xs font-medium uppercase tracking-[0.12em] text-zinc-600">
                       Product Name
@@ -867,6 +868,7 @@ export default function Home() {
                         value={prodName}
                         onChange={(e) => setProdName(e.target.value)}
                         className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600"
+                        placeholder="Notion"
                       />
                     </label>
 
@@ -877,6 +879,7 @@ export default function Home() {
                         value={tagline}
                         onChange={(e) => setTagline(e.target.value)}
                         className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600"
+                        placeholder="Note app for developers"
                         maxLength={60}
                       />
                     </label>
@@ -888,6 +891,7 @@ export default function Home() {
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600 resize-none"
+                        placeholder="A full description detailing features and benefits."
                         maxLength={260}
                         rows={3}
                       />
@@ -899,6 +903,7 @@ export default function Home() {
                         value={keywordsRaw}
                         onChange={(e) => setKeywordsRaw(e.target.value)}
                         className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600"
+                        placeholder="Productivity, AI, Developer Tools"
                       />
                     </label>
 
@@ -908,6 +913,7 @@ export default function Home() {
                         value={alternativeLinksRaw}
                         onChange={(e) => setAlternativeLinksRaw(e.target.value)}
                         className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600"
+                        placeholder="https://play.google.com/store"
                       />
                     </label>
 
@@ -917,6 +923,7 @@ export default function Home() {
                         value={license}
                         onChange={(e) => setLicense(e.target.value)}
                         className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600"
+                        placeholder="MIT (or leave empty for '-')"
                       />
                     </label>
 
@@ -993,6 +1000,7 @@ export default function Home() {
                         value={videoLink}
                         onChange={(e) => setVideoLink(e.target.value)}
                         className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600"
+                        placeholder="https://youtube.com/watch?v=..."
                       />
                     </label>
 
@@ -1002,6 +1010,7 @@ export default function Home() {
                         value={makersRaw}
                         onChange={(e) => setMakersRaw(e.target.value)}
                         className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600"
+                        placeholder="octocat, torvalds"
                       />
                     </label>
 
@@ -1309,13 +1318,86 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-              <button
-                onClick={() => setSelectedProject(null)}
-                className="rounded-full border border-zinc-700 px-4 py-2 text-sm text-zinc-300 transition-colors hover:bg-zinc-800"
-              >
-                Close
-              </button>
+              <div className="flex shrink-0 flex-wrap justify-end gap-2">
+                {loggedInUser && selectedProject.submittedBy.toLowerCase() === loggedInUser.toLowerCase() ? (
+                  <>
+                    <button
+                      onClick={startEditSelectedProject}
+                      className="rounded-full border border-zinc-700 px-4 py-2 text-sm text-zinc-300 transition-colors hover:bg-zinc-800"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={handleDeleteSelectedProject}
+                      className="rounded-full border border-red-900/70 px-4 py-2 text-sm text-red-300 transition-colors hover:bg-red-950/40"
+                    >
+                      Delete
+                    </button>
+                  </>
+                ) : null}
+                <button
+                  onClick={() => {
+                    setSelectedProject(null);
+                    setEditingProject(false);
+                    setProjectActionError(null);
+                  }}
+                  className="rounded-full border border-zinc-700 px-4 py-2 text-sm text-zinc-300 transition-colors hover:bg-zinc-800"
+                >
+                  Close
+                </button>
+              </div>
             </div>
+
+            {projectActionError ? (
+              <p className="mt-4 rounded-xl border border-red-900/60 bg-red-950/20 px-3 py-2 text-xs text-red-300">{projectActionError}</p>
+            ) : null}
+
+            {editingProject ? (
+              <div className="mt-6 rounded-2xl border border-zinc-800 bg-zinc-950/70 p-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="block text-xs font-medium uppercase tracking-[0.12em] text-zinc-600">
+                    Product Name
+                    <input value={prodName} onChange={(e) => setProdName(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600" maxLength={50} />
+                  </label>
+                  <label className="block text-xs font-medium uppercase tracking-[0.12em] text-zinc-600">
+                    Tagline
+                    <input value={tagline} onChange={(e) => setTagline(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600" maxLength={60} />
+                  </label>
+                  <label className="block text-xs font-medium uppercase tracking-[0.12em] text-zinc-600 sm:col-span-2">
+                    Description
+                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="mt-2 w-full resize-none rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600" maxLength={260} rows={3} />
+                  </label>
+                  <label className="block text-xs font-medium uppercase tracking-[0.12em] text-zinc-600">
+                    Keywords
+                    <input value={keywordsRaw} onChange={(e) => setKeywordsRaw(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600" placeholder="AI, Tools, SaaS" />
+                  </label>
+                  <label className="block text-xs font-medium uppercase tracking-[0.12em] text-zinc-600">
+                    License
+                    <input value={license} onChange={(e) => setLicense(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600" placeholder="MIT" />
+                  </label>
+                  <label className="block text-xs font-medium uppercase tracking-[0.12em] text-zinc-600 sm:col-span-2">
+                    Alternative Links
+                    <input value={alternativeLinksRaw} onChange={(e) => setAlternativeLinksRaw(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600" placeholder="https://..." />
+                  </label>
+                  <label className="block text-xs font-medium uppercase tracking-[0.12em] text-zinc-600 sm:col-span-2">
+                    YouTube Video Link
+                    <input value={videoLink} onChange={(e) => setVideoLink(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600" placeholder="https://youtube.com/watch?v=..." />
+                  </label>
+                  <label className="block text-xs font-medium uppercase tracking-[0.12em] text-zinc-600 sm:col-span-2">
+                    Makers
+                    <input value={makersRaw} onChange={(e) => setMakersRaw(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600" placeholder="octocat, torvalds" />
+                  </label>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <button onClick={handleUpdateSelectedProject} className="rounded-full bg-zinc-50 px-4 py-2 text-sm font-semibold text-zinc-950 transition-opacity hover:opacity-85">
+                    Save changes
+                  </button>
+                  <button onClick={() => setEditingProject(false)} className="rounded-full border border-zinc-700 px-4 py-2 text-sm font-semibold text-zinc-200 transition-colors hover:bg-zinc-800">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : null}
 
             <div className="mt-6 flex flex-wrap gap-2">
               {selectedProject.keywords.map((kw) => (

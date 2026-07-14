@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getBattleDateId, getBattleProjects, submitProject } from "@/lib/battle";
+import { deleteProject, getBattleDateId, getBattleProjects, submitProject, updateProject } from "@/lib/battle";
 
 export async function GET() {
   const todayId = getBattleDateId();
@@ -140,4 +140,71 @@ export async function POST(request: Request) {
     console.error("[api/battle] Submit failed:", e);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
+}
+
+export async function PATCH(request: Request) {
+  const session = await getServerSession(authOptions);
+  const sessionUser = session?.user as unknown as { username?: string; name?: string } | undefined;
+  const username = sessionUser?.username ?? sessionUser?.name;
+  if (!username) {
+    return NextResponse.json({ error: "Unauthorized. Please sign in via GitHub." }, { status: 401 });
+  }
+
+  try {
+    const body = await request.json();
+    const { projectId, name, tagline, description, keywords, alternativeLinks, license, thumbnail, screenshots, videoLink, makers } = body;
+    if (!projectId) {
+      return NextResponse.json({ error: "Project ID is required." }, { status: 400 });
+    }
+    if (!name || !tagline || !description || !thumbnail) {
+      return NextResponse.json({ error: "Name, tagline, description, and thumbnail are required." }, { status: 400 });
+    }
+    if (!Array.isArray(screenshots) || screenshots.length < 2) {
+      return NextResponse.json({ error: "Please upload at least 2 screenshots." }, { status: 400 });
+    }
+
+    const result = await updateProject(getBattleDateId(), username, projectId, {
+      name,
+      tagline,
+      description,
+      keywords: Array.isArray(keywords) ? keywords : [],
+      alternativeLinks: Array.isArray(alternativeLinks) ? alternativeLinks : [],
+      license: license || "-",
+      thumbnail,
+      screenshots,
+      videoLink,
+      makers: Array.isArray(makers) ? makers : [],
+    });
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: 400 });
+    }
+
+    return NextResponse.json({ success: true, project: result.project });
+  } catch (e) {
+    console.error("[api/battle] Update failed:", e);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  const session = await getServerSession(authOptions);
+  const sessionUser = session?.user as unknown as { username?: string; name?: string } | undefined;
+  const username = sessionUser?.username ?? sessionUser?.name;
+  if (!username) {
+    return NextResponse.json({ error: "Unauthorized. Please sign in via GitHub." }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(request.url);
+  const projectId = searchParams.get("projectId");
+  if (!projectId) {
+    return NextResponse.json({ error: "Project ID is required." }, { status: 400 });
+  }
+
+  const result = await deleteProject(getBattleDateId(), username, projectId);
+  if (!result.success) {
+    return NextResponse.json({ error: result.error }, { status: 400 });
+  }
+
+  return NextResponse.json({ success: true });
 }

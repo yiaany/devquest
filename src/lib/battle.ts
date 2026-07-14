@@ -135,6 +135,50 @@ export async function submitProject(
   return { success: true };
 }
 
+export async function updateProject(
+  battleId: string,
+  username: string,
+  projectId: string,
+  updates: Partial<Pick<BattleProject, "name" | "tagline" | "description" | "keywords" | "alternativeLinks" | "license" | "thumbnail" | "screenshots" | "videoLink" | "makers">>,
+): Promise<{ success: boolean; error?: string; project?: BattleProject }> {
+  const projects = await getBattleProjects(battleId);
+  const project = projects.find((p) => p.id === projectId.toLowerCase());
+  if (!project) return { success: false, error: "Project not found." };
+  if (project.submittedBy.toLowerCase() !== username.toLowerCase()) {
+    return { success: false, error: "Only the submitter can edit this project." };
+  }
+
+  if (updates.name !== undefined) project.name = updates.name.trim().slice(0, 50);
+  if (updates.tagline !== undefined) project.tagline = updates.tagline.trim().slice(0, 60);
+  if (updates.description !== undefined) project.description = updates.description.trim().slice(0, 260);
+  if (updates.keywords !== undefined) project.keywords = updates.keywords.slice(0, 3);
+  if (updates.alternativeLinks !== undefined) project.alternativeLinks = updates.alternativeLinks;
+  if (updates.license !== undefined) project.license = updates.license.trim() || "-";
+  if (updates.thumbnail !== undefined && updates.thumbnail.trim()) project.thumbnail = updates.thumbnail.trim();
+  if (updates.screenshots !== undefined && updates.screenshots.length >= 2) project.screenshots = updates.screenshots.slice(0, 5);
+  if (updates.videoLink !== undefined) project.videoLink = updates.videoLink.trim();
+  if (updates.makers !== undefined) project.makers = Array.from(new Set([username, ...updates.makers]));
+
+  await saveBattleProjects(battleId, projects);
+  return { success: true, project };
+}
+
+export async function deleteProject(
+  battleId: string,
+  username: string,
+  projectId: string,
+): Promise<{ success: boolean; error?: string }> {
+  const projects = await getBattleProjects(battleId);
+  const project = projects.find((p) => p.id === projectId.toLowerCase());
+  if (!project) return { success: false, error: "Project not found." };
+  if (project.submittedBy.toLowerCase() !== username.toLowerCase()) {
+    return { success: false, error: "Only the submitter can delete this project." };
+  }
+
+  await saveBattleProjects(battleId, projects.filter((p) => p.id !== project.id));
+  return { success: true };
+}
+
 export async function toggleVoteProject(
   battleId: string,
   username: string,

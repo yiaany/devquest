@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { CARDS, CARD_CATEGORIES, CATEGORY_LABELS, type CardCategory } from "@/cards/registry";
@@ -64,6 +64,18 @@ type TabId = "all" | CardCategory;
 type OpenMenu = "template" | "style" | "theme" | null;
 type Mode = "templates" | "battle";
 
+interface GitHubRepoOption {
+  name: string;
+  owner: string;
+  fullName: string;
+  url: string;
+  description: string;
+  license: string;
+  stars: number;
+  fork: boolean;
+  private: boolean;
+}
+
 function buildQuery(params: {
   template: string;
   style: ArtStyle;
@@ -123,6 +135,9 @@ export default function Home() {
   const [yesterdayProjects, setYesterdayProjects] = useState<BattleProject[]>([]);
   const [timeLeft, setTimeLeft] = useState("");
   const [submittingProject, setSubmittingProject] = useState(false);
+  const [reposLoading, setReposLoading] = useState(false);
+  const [githubRepos, setGithubRepos] = useState<GitHubRepoOption[]>([]);
+  const [selectedRepoFullName, setSelectedRepoFullName] = useState("");
 
   // Form Fields
   const [repoOwner, setRepoOwner] = useState("");
@@ -171,6 +186,35 @@ export default function Home() {
     setUploadedScreenshots((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const loadGitHubRepos = useCallback(async () => {
+    if (!loggedInUser) return;
+    setReposLoading(true);
+    try {
+      const res = await fetch("/api/github/repos", { cache: "no-store" });
+      if (res.ok) {
+        const data = (await res.json()) as { repos?: GitHubRepoOption[] };
+        setGithubRepos(data.repos ?? []);
+      }
+    } catch (error) {
+      console.error("Failed to load GitHub repositories:", error);
+    } finally {
+      setReposLoading(false);
+    }
+  }, [loggedInUser]);
+
+  const selectGitHubRepo = (fullName: string) => {
+    setSelectedRepoFullName(fullName);
+    const repo = githubRepos.find((item) => item.fullName === fullName);
+    if (!repo) return;
+    setRepoOwner(repo.owner);
+    setRepoName(repo.name);
+    setProdName(repo.name);
+    setTagline(repo.description.slice(0, 60));
+    setDescription(repo.description.slice(0, 260));
+    setLicense(repo.license || "-");
+    setAlternativeLinksRaw(repo.url);
+  };
+
   // Selected Battle Project Details
   const [selectedProject, setSelectedProject] = useState<BattleProject | null>(null);
   const [commentText, setCommentText] = useState("");
@@ -206,6 +250,12 @@ export default function Home() {
       loadBattleData();
     }
   }, [mounted]);
+
+  useEffect(() => {
+    if (mounted && mode === "battle" && loggedInUser) {
+      loadGitHubRepos();
+    }
+  }, [mounted, mode, loggedInUser, loadGitHubRepos]);
 
   // Time left timer (resets daily at 07:00 UTC)
   useEffect(() => {
@@ -374,15 +424,23 @@ export default function Home() {
       return;
     }
 
-    setSubmittingProject(true);
     setSubmitError(null);
     setSubmitSuccess(false);
+
+    const cleanRepoOwner = repoOwner.trim();
+    const cleanRepoName = repoName.trim();
+    const cleanName = prodName.trim();
+    const cleanTagline = tagline.trim();
+    const cleanDescription = description.trim();
+    const cleanLicense = license.trim() || "-";
+    const cleanVideoLink = videoLink.trim();
 
     // Form parsing
     const keywords = keywordsRaw
       .split(",")
       .map((k) => k.trim())
-      .filter(Boolean);
+      .filter(Boolean)
+      .slice(0, 3);
     const alternativeLinks = alternativeLinksRaw
       .split(",")
       .map((l) => l.trim())
@@ -392,22 +450,44 @@ export default function Home() {
       .map((m) => m.trim())
       .filter(Boolean);
 
+    if (!cleanRepoOwner || !cleanRepoName) {
+      setSubmitError("Укажи GitHub owner и repository name.");
+      return;
+    }
+
+    if (!cleanName || !cleanTagline || !cleanDescription) {
+      setSubmitError("Заполни Name, Tagline и Description.");
+      return;
+    }
+
+    if (!uploadedThumbnail) {
+      setSubmitError("Загрузи thumbnail/logo проекта файлом.");
+      return;
+    }
+
+    if (uploadedScreenshots.length < 2) {
+      setSubmitError("Загрузи минимум 2 скриншота проекта.");
+      return;
+    }
+
+    setSubmittingProject(true);
+
     try {
       const res = await fetch("/api/battle", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          repoOwner,
-          repoName,
-          name: prodName,
-          tagline,
-          description,
+          repoOwner: cleanRepoOwner,
+          repoName: cleanRepoName,
+          name: cleanName,
+          tagline: cleanTagline,
+          description: cleanDescription,
           keywords,
           alternativeLinks,
-          license: license || "-",
+          license: cleanLicense,
           thumbnail: uploadedThumbnail,
           screenshots: uploadedScreenshots,
-          videoLink,
+          videoLink: cleanVideoLink,
           makers,
         }),
       });
@@ -416,6 +496,7 @@ export default function Home() {
         setSubmitSuccess(true);
         setRepoOwner("");
         setRepoName("");
+        setSelectedRepoFullName("");
         setProdName("");
         setTagline("");
         setDescription("");
@@ -744,27 +825,40 @@ export default function Home() {
                   <p className="text-xs text-zinc-500 mt-1">Submit your repo to the battle. Star check required.</p>
 
                   <form onSubmit={handleSubmitProject} className="mt-5 space-y-4">
-                    <label className="block text-xs font-medium uppercase tracking-[0.12em] text-zinc-600">
-                      GitHub Owner
-                      <input
+                    <div>
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="block text-xs font-medium uppercase tracking-[0.12em] text-zinc-600">
+                          GitHub Repository
+                        </span>
+                        <button
+                          type="button"
+                          onClick={loadGitHubRepos}
+                          className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500 transition-colors hover:text-zinc-200"
+                        >
+                          {reposLoading ? "Loading..." : "Refresh"}
+                        </button>
+                      </div>
+                      <select
                         required
-                        value={repoOwner}
-                        onChange={(e) => setRepoOwner(e.target.value)}
+                        value={selectedRepoFullName}
+                        onChange={(e) => selectGitHubRepo(e.target.value)}
                         className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600"
-                        placeholder="facebook"
-                      />
-                    </label>
-
-                    <label className="block text-xs font-medium uppercase tracking-[0.12em] text-zinc-600">
-                      GitHub Repo Name
-                      <input
-                        required
-                        value={repoName}
-                        onChange={(e) => setRepoName(e.target.value)}
-                        className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600"
-                        placeholder="react"
-                      />
-                    </label>
+                      >
+                        <option value="">
+                          {loggedInUser ? "Select one of your repositories" : "Sign in to load repositories"}
+                        </option>
+                        {githubRepos.map((repo) => (
+                          <option key={repo.fullName} value={repo.fullName}>
+                            {repo.fullName}{repo.private ? " (private)" : ""}{repo.fork ? " (fork)" : ""}
+                          </option>
+                        ))}
+                      </select>
+                      {repoOwner.trim() && repoName.trim() ? (
+                        <div className="mt-2 rounded-xl border border-emerald-500/10 bg-emerald-500/5 px-3 py-2 text-xs text-emerald-300">
+                          Primary link: https://github.com/{repoOwner.trim()}/{repoName.trim()}
+                        </div>
+                      ) : null}
+                    </div>
 
                     <label className="block text-xs font-medium uppercase tracking-[0.12em] text-zinc-600">
                       Product Name
@@ -773,7 +867,6 @@ export default function Home() {
                         value={prodName}
                         onChange={(e) => setProdName(e.target.value)}
                         className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600"
-                        placeholder="Notion"
                       />
                     </label>
 
@@ -784,7 +877,6 @@ export default function Home() {
                         value={tagline}
                         onChange={(e) => setTagline(e.target.value)}
                         className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600"
-                        placeholder="Note app for developers"
                         maxLength={60}
                       />
                     </label>
@@ -796,7 +888,6 @@ export default function Home() {
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600 resize-none"
-                        placeholder="A full description detailing features and benefits."
                         maxLength={260}
                         rows={3}
                       />
@@ -808,7 +899,6 @@ export default function Home() {
                         value={keywordsRaw}
                         onChange={(e) => setKeywordsRaw(e.target.value)}
                         className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600"
-                        placeholder="Productivity, AI, Developer Tools"
                       />
                     </label>
 
@@ -818,7 +908,6 @@ export default function Home() {
                         value={alternativeLinksRaw}
                         onChange={(e) => setAlternativeLinksRaw(e.target.value)}
                         className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600"
-                        placeholder="https://play.google.com/store"
                       />
                     </label>
 
@@ -828,7 +917,6 @@ export default function Home() {
                         value={license}
                         onChange={(e) => setLicense(e.target.value)}
                         className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600"
-                        placeholder="MIT (or leave empty for '-')"
                       />
                     </label>
 
@@ -905,7 +993,6 @@ export default function Home() {
                         value={videoLink}
                         onChange={(e) => setVideoLink(e.target.value)}
                         className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600"
-                        placeholder="https://youtube.com/watch?v=..."
                       />
                     </label>
 
@@ -915,7 +1002,6 @@ export default function Home() {
                         value={makersRaw}
                         onChange={(e) => setMakersRaw(e.target.value)}
                         className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600"
-                        placeholder="octocat, torvalds"
                       />
                     </label>
 

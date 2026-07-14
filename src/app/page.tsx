@@ -138,6 +138,7 @@ export default function Home() {
   const [submittingProject, setSubmittingProject] = useState(false);
   const [githubRepos, setGithubRepos] = useState<GitHubRepoOption[]>([]);
   const [reposLoading, setReposLoading] = useState(false);
+  const [reposError, setReposError] = useState<string | null>(null);
   const [repoPickerOpen, setRepoPickerOpen] = useState(false);
   const [repoSearch, setRepoSearch] = useState("");
 
@@ -214,14 +215,20 @@ export default function Home() {
   const loadGithubRepos = useCallback(async () => {
     if (!loggedInUser) return;
     setReposLoading(true);
+    setReposError(null);
     try {
       const res = await fetch("/api/github/repos");
       const data = await res.json();
       if (res.ok) {
         setGithubRepos(data.repos ?? []);
+      } else {
+        setGithubRepos([]);
+        setReposError(data.error ?? "Failed to load GitHub repositories.");
       }
     } catch (e) {
       console.error("Failed to load GitHub repositories:", e);
+      setGithubRepos([]);
+      setReposError("Failed to connect to GitHub repositories API.");
     } finally {
       setReposLoading(false);
     }
@@ -232,6 +239,7 @@ export default function Home() {
       loadGithubRepos();
     } else {
       setGithubRepos([]);
+      setReposError(null);
     }
   }, [loadGithubRepos, loggedInUser]);
 
@@ -438,6 +446,12 @@ export default function Home() {
     setSubmittingProject(true);
     setSubmitError(null);
     setSubmitSuccess(false);
+
+    if (!repoOwner || !repoName) {
+      setSubmitError("Choose a repository from your GitHub list first.");
+      setSubmittingProject(false);
+      return;
+    }
 
     // Form parsing
     const keywords = keywordsRaw
@@ -929,8 +943,19 @@ export default function Home() {
                           <div className="max-h-64 overflow-y-auto">
                             {reposLoading ? (
                               <p className="px-3 py-3 text-xs text-zinc-500">Loading your repositories...</p>
+                            ) : reposError ? (
+                              <div className="px-3 py-3">
+                                <p className="text-xs text-red-300">{reposError}</p>
+                                <button
+                                  type="button"
+                                  onClick={loadGithubRepos}
+                                  className="mt-2 text-xs font-medium text-emerald-400 hover:text-emerald-300"
+                                >
+                                  Retry loading repos
+                                </button>
+                              </div>
                             ) : filteredGithubRepos.length === 0 ? (
-                              <p className="px-3 py-3 text-xs text-zinc-500">No repositories found.</p>
+                              <p className="px-3 py-3 text-xs text-zinc-500">No repositories found for @{loggedInUser}.</p>
                             ) : (
                               filteredGithubRepos.map((repo) => (
                                 <button
@@ -1039,8 +1064,8 @@ export default function Home() {
                       License
                       <input
                         value={license}
-                        onChange={(e) => setLicense(e.target.value)}
-                        className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600"
+                        readOnly
+                        className="mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2.5 text-sm text-zinc-400 outline-none"
                         placeholder="Auto-filled from GitHub"
                       />
                     </label>
@@ -1491,7 +1516,7 @@ export default function Home() {
                   </label>
                   <label className="block text-xs font-medium uppercase tracking-[0.12em] text-zinc-600">
                     License
-                    <input value={license} onChange={(e) => setLicense(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#050505] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-600" placeholder="MIT" />
+                    <input value={license} readOnly className="mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2.5 text-sm text-zinc-400 outline-none" placeholder="Auto-filled from GitHub" />
                   </label>
                   <label className="block text-xs font-medium uppercase tracking-[0.12em] text-zinc-600 sm:col-span-2">
                     Alternative Links

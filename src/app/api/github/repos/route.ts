@@ -21,27 +21,42 @@ export async function GET() {
     | { username?: string; name?: string; accessToken?: string }
     | undefined;
   const accessToken = sessionUser?.accessToken;
+  const username = sessionUser?.username ?? sessionUser?.name;
 
-  if (!accessToken) {
+  if (!username) {
     return NextResponse.json(
       { error: "Unauthorized. Please sign in via GitHub." },
       { status: 401 },
     );
   }
 
-  const res = await fetch(
-    "https://api.github.com/user/repos?per_page=100&sort=updated&affiliation=owner",
+  const headers: HeadersInit = {
+    Accept: "application/vnd.github+json",
+    "User-Agent": "DevQuest",
+  };
+  if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
+
+  let res = await fetch(
+    "https://api.github.com/user/repos?per_page=100&sort=updated&affiliation=owner,collaborator,organization_member",
     {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        Accept: "application/vnd.github+json",
-        "User-Agent": "DevQuest",
-      },
+      headers,
       cache: "no-store",
     },
   );
 
+  if (!res.ok || res.status === 401 || res.status === 403) {
+    res = await fetch(
+      `https://api.github.com/users/${encodeURIComponent(username)}/repos?per_page=100&sort=updated&type=owner`,
+      {
+        headers,
+        cache: "no-store",
+      },
+    );
+  }
+
   if (!res.ok) {
+    const details = await res.text().catch(() => "");
+    console.error("[api/github/repos] GitHub repositories failed:", res.status, details);
     return NextResponse.json(
       { error: "Failed to load GitHub repositories." },
       { status: res.status },

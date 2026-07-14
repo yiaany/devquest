@@ -1,9 +1,5 @@
 /**
  * Contribution Gauge card — last-year contributions as a radial gauge.
- *
- * The arc fills relative to a soft 1000-commit reference so the gauge reads
- * well for typical profiles while never overflowing. Center shows the real
- * count; sub-caption shows current streak. All values are real.
  */
 
 import type { CardContext } from "@/cards/context";
@@ -65,16 +61,20 @@ export function renderContributionGauge(ctx: CardContext): React.ReactNode {
           <div
             style={{
               position: "absolute",
-              inset: 0,
+              top: -8,
+              left: 0,
+              width: SIZE,
+              height: SIZE,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
             }}
           >
-            <span style={{ color: theme.fg, fontSize: 38, fontWeight: 700, lineHeight: 1.1 }}>
+            <span style={{ color: theme.fg, fontSize: 34, fontWeight: 700, lineHeight: 1 }}>
               {formatCount(value)}
             </span>
+            <div style={{ display: "flex", height: 4 }} />
             <span style={{ color: theme.muted, fontSize: 11, letterSpacing: 1, textTransform: "uppercase" }}>
               last year
             </span>
